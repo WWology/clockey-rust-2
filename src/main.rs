@@ -1,7 +1,7 @@
 #![warn(clippy::pedantic)]
 
 use dotenv::dotenv;
-use sqlx::{SqlitePool, Pool, Sqlite};
+use sqlx::{Pool, Sqlite, SqlitePool};
 use std::env;
 
 use poise::serenity_prelude::{self as serenity};
@@ -54,27 +54,28 @@ async fn main() {
             on_error: |error| Box::pin(on_error(error)),
             pre_command: |ctx| {
                 Box::pin(async move {
-                    println!("Executing command {}...", ctx.command().qualified_name);
+                    println!(
+                        "Executing command {}... by {}",
+                        ctx.command().qualified_name,
+                        ctx.author().display_name()
+                    );
                 })
             },
             post_command: |ctx| {
                 Box::pin(async move {
-                    println!("Executed command {}!", ctx.command().qualified_name);
+                    println!(
+                        "Executed command {} by {}!",
+                        ctx.command().qualified_name,
+                        ctx.author().display_name()
+                    );
                 })
             },
-            event_handler: |_, event| {
-                Box::pin(async move {
-                    if let serenity::FullEvent::Ready { data_about_bot } = event {
-                        println!("Logged in as {}", data_about_bot.user.name);
-                    }
-                    Ok(())
-                })
-            },
-            ..Default::default()
 
+            ..Default::default()
         })
-        .setup(|ctx, _ready, framework| {
+        .setup(|ctx, ready, framework| {
             Box::pin(async move {
+                println!("Logged in as {}", ready.user.name);
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 Ok(Data { db: db })
             })
@@ -86,4 +87,3 @@ async fn main() {
         .await;
     client.unwrap().start().await.unwrap();
 }
-
