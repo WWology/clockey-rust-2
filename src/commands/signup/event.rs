@@ -1,4 +1,5 @@
 use crate::{Context, Error};
+use log::{log, Level};
 use poise::serenity_prelude::{
     CreateAllowedMentions, CreateScheduledEvent, EmojiId, ReactionType, ScheduledEventType,
     Timestamp,
@@ -31,7 +32,7 @@ pub async fn event(
             hours = get_hours(data.series_length.as_str())?;
             series_length = Some(data.series_length);
             // channel_id = 738_009_797_932_351_519;
-            channel_id = 738607620566286398;
+            channel_id = 738_607_620_566_286_398;
             scheduled_type = ScheduledEventType::Voice;
         }
         EventChoice::CS => {
@@ -43,7 +44,7 @@ pub async fn event(
             hours = get_hours(data.series_length.as_str())?;
             series_length = Some(data.series_length);
             // channel_id = 746_618_267_434_614_804;
-            channel_id = 738607620566286398;
+            channel_id = 738_607_620_566_286_398;
             scheduled_type = ScheduledEventType::Voice;
         }
         EventChoice::Other => {
@@ -55,7 +56,7 @@ pub async fn event(
             hours = data.hours.parse::<u8>()?;
             series_length = None;
             // channel_id = 1_186_593_338_300_842_025;
-            channel_id = 991620472544440454;
+            channel_id = 991_620_472_544_440_454;
             scheduled_type = ScheduledEventType::StageInstance;
         }
     }
@@ -81,7 +82,13 @@ pub async fn event(
         );
     }
 
-    let start_time = Timestamp::from_unix_timestamp(time.parse::<i64>()?)?;
+    let start_time = match time.parse::<i64>() {
+        Ok(unix) => Timestamp::from_unix_timestamp(unix)?,
+        Err(error) => {
+            log!(Level::Error, "Error parsing time string to i64: {}", time);
+            return Err(error.into());
+        }
+    };
     let event = CreateScheduledEvent::new(scheduled_type, name, start_time).channel_id(channel_id);
 
     ctx.guild_id()
