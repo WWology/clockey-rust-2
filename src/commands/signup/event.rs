@@ -138,6 +138,18 @@ pub async fn event(
     Ok(())
 }
 
+#[derive(Debug, poise::ChoiceParameter)]
+enum EventChoice {
+    #[name = "Dota"]
+    Dota,
+
+    #[name = "CS"]
+    CS,
+
+    #[name = "Other"]
+    Other,
+}
+
 #[derive(Debug, Modal)]
 #[name = "Game Information"]
 struct GameModal {
@@ -167,18 +179,6 @@ struct EventModal {
 
     #[name = "How many hours is this event?"]
     hours: String,
-}
-
-#[derive(Debug, poise::ChoiceParameter)]
-enum EventChoice {
-    #[name = "Dota"]
-    Dota,
-
-    #[name = "CS"]
-    CS,
-
-    #[name = "Other"]
-    Other,
 }
 
 fn get_hours(series_length: &str) -> Result<u8, Error> {
