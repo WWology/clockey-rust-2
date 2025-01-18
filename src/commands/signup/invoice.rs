@@ -1,7 +1,10 @@
 use std::borrow::Cow;
 
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
-use poise::{serenity_prelude::{CreateEmbed, CreateEmbedAuthor, Member, Timestamp}, CreateReply};
+use poise::{
+    serenity_prelude::{CreateEmbed, CreateEmbedAuthor, Member, Timestamp},
+    CreateReply,
+};
 
 use crate::{data::event::Event, Context, Error};
 
@@ -15,7 +18,11 @@ pub async fn invoice(
 ) -> Result<(), Error> {
     ctx.defer_ephemeral().await?;
 
-    let member = ctx.author_member().await.unwrap();
+    let member = ctx
+        .author_member()
+        .await
+        .ok_or_else(|| "Failed to find Member")?;
+
     let start = match NaiveDate::parse_from_str(&start_date, "%Y-%m-%d") {
         Ok(date) => date.and_time(NaiveTime::default()),
         Err(error) => {
@@ -24,7 +31,6 @@ pub async fn invoice(
             return Err(error.into());
         }
     };
-    println!("{}", start.and_utc().timestamp());
 
     let end = match end_date {
         Some(end_date) => match NaiveDate::parse_from_str(&end_date, "%Y-%m-%d") {
@@ -37,15 +43,32 @@ pub async fn invoice(
         },
         None => Utc::now().naive_utc(),
     };
+
     let gardener_id = ctx.author().id.get();
+    let dota_invoice = Event::get_dota_events(
+        &ctx.data().db,
+        start.and_utc().timestamp(),
+        end.and_utc().timestamp(),
+        gardener_id as i64,
+    )
+    .await?;
+    let cs_invoice = Event::get_cs_events(
+        &ctx.data().db,
+        start.and_utc().timestamp(),
+        end.and_utc().timestamp(),
+        gardener_id as i64,
+    )
+    .await?;
+    let other_invoice = Event::get_other_events(
+        &ctx.data().db,
+        start.and_utc().timestamp(),
+        end.and_utc().timestamp(),
+        gardener_id as i64,
+    )
+    .await?;
 
-    let dota_invoice =
-        Event::get_dota_events(&ctx.data().db, start.and_utc().timestamp(), end.and_utc().timestamp(), gardener_id as i64).await?;
-    let cs_invoice = Event::get_cs_events(&ctx.data().db, start.and_utc().timestamp(), end.and_utc().timestamp(), gardener_id as i64).await?;
-    let other_invoice =
-        Event::get_other_events(&ctx.data().db, start.and_utc().timestamp(), end.and_utc().timestamp(), gardener_id as i64).await?;
-
-    let invoice_embed = generate_embed(dota_invoice, cs_invoice, other_invoice, start, end, member)?;
+    let invoice_embed =
+        generate_embed(dota_invoice, cs_invoice, other_invoice, start, end, member)?;
     ctx.send(CreateReply::new().embed(invoice_embed)).await?;
 
     Ok(())
@@ -103,7 +126,7 @@ fn generate_embed(
             ("Dota", dota_events, false),
             ("CS", cs_events, false),
             ("Other", other_events, false),
-            ("Total Hours", total_hours.to_string(), false)
+            ("Total Hours", total_hours.to_string(), false),
         ])
         .timestamp(Timestamp::now());
     Ok(embed)
