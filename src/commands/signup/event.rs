@@ -6,6 +6,10 @@ use poise::serenity_prelude::{
 };
 use poise::{CreateReply, Modal};
 
+const DOTA_CHANNEL_ID: u64 = 738_009_797_932_351_519;
+const CS_CHANNEL_ID: u64 = 746_618_267_434_614_804;
+const OG_STAGE_CHANNEL_ID: u64 = 1_186_593_338_300_842_025;
+
 #[poise::command(slash_command)]
 pub async fn event(
     ctx: Context<'_>,
@@ -31,8 +35,11 @@ pub async fn event(
             time = data.time;
             hours = get_hours(data.series_length.as_str())?;
             series_length = Some(data.series_length);
-            // channel_id = 738_009_797_932_351_519;
-            channel_id = 738_607_620_566_286_398;
+            channel_id = if cfg!(debug_assertions) {
+                738_607_620_566_286_398
+            } else {
+                DOTA_CHANNEL_ID
+            };
             scheduled_type = ScheduledEventType::Voice;
         }
         EventChoice::CS => {
@@ -43,8 +50,11 @@ pub async fn event(
             time = data.time;
             hours = get_hours(data.series_length.as_str())?;
             series_length = Some(data.series_length);
-            // channel_id = 746_618_267_434_614_804;
-            channel_id = 738_607_620_566_286_398;
+            channel_id = if cfg!(debug_assertions) {
+                738_607_620_566_286_398
+            } else {
+                CS_CHANNEL_ID
+            };
             scheduled_type = ScheduledEventType::Voice;
         }
         EventChoice::Other => {
@@ -55,8 +65,11 @@ pub async fn event(
             time = data.time;
             hours = data.hours.parse::<u8>()?;
             series_length = None;
-            // channel_id = 1_186_593_338_300_842_025;
-            channel_id = 991_620_472_544_440_454;
+            channel_id = if cfg!(debug_assertions) {
+                991_620_472_544_440_454
+            } else {
+                OG_STAGE_CHANNEL_ID
+            };
             scheduled_type = ScheduledEventType::StageInstance;
         }
     }
@@ -96,16 +109,18 @@ pub async fn event(
         .create_scheduled_event(ctx, event)
         .await?;
 
-    // let og_peepo_yes_emoji = ReactionType::Custom {
-    //     animated: false,
-    //     id: EmojiId::new(730_890_894_814_740_541),
-    //     name: Some(String::from("OGpeepoYes")),
-    // };
-
-    let reactor_emoji = ReactionType::Custom {
-        animated: false,
-        id: EmojiId::new(951843834554376262),
-        name: Some(String::from("ruggahPain")),
+    let signup_emoji = if cfg!(debug_assertions) {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(951843834554376262),
+            name: Some(String::from("ruggahPain")),
+        }
+    } else {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(730_890_894_814_740_541),
+            name: Some(String::from("OGpeepoYes")),
+        }
     };
 
     let msg = if ping {
@@ -119,7 +134,7 @@ pub async fn event(
         ctx.send(reply).await?.into_message().await?
     };
 
-    msg.react(&ctx, reactor_emoji).await?;
+    msg.react(&ctx, signup_emoji).await?;
     Ok(())
 }
 

@@ -41,7 +41,6 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
     };
 
     let (name, time, event_type, hours) = parse_message(&msg.content)?;
-
     Event::new(name.as_str(), time, event_type, gardener_working, hours)
         .insert(&ctx.data().db)
         .await?;
@@ -76,15 +75,18 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
 }
 
 async fn message_processed(ctx: &Context<'_>, msg: &Message) -> Result<bool, Error> {
-    // let processed_emoji = ReactionType::Custom {
-    //     animated: false,
-    //     id: EmojiId::new(787_697_278_190_223_370),
-    //     name: Some(String::from("OGwecoo")),
-    // };
-    let processed_emoji = ReactionType::Custom {
-        animated: false,
-        id: EmojiId::new(1329032244580323349),
-        name: Some(String::from("khezuBrain")),
+    let processed_emoji = if cfg!(debug_assertions) {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(1_329_032_244_580_323_349),
+            name: Some(String::from("khezuBrain")),
+        }
+    } else {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(787_697_278_190_223_370),
+            name: Some(String::from("OGwecoo")),
+        }
     };
 
     let processed_reactions = msg
@@ -95,7 +97,7 @@ async fn message_processed(ctx: &Context<'_>, msg: &Message) -> Result<bool, Err
         return Ok(false);
     }
 
-    return Ok(true);
+    Ok(true)
 }
 
 async fn gardener_select_menu_builder(
@@ -103,18 +105,21 @@ async fn gardener_select_menu_builder(
     msg: &Message,
 ) -> Result<CreateSelectMenu, Error> {
     let clockey_id = ctx.interaction.application_id.get();
-    let gardeners_reacted = msg
-        .reaction_users(
-            ctx,
-            ReactionType::Custom {
-                animated: false,
-                id: EmojiId::new(951843834554376262),
-                name: Some(String::from("ruggahPain")),
-            },
-            Some(6),
-            None,
-        )
-        .await?;
+
+    let signup_emoji = if cfg!(debug_assertions) {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(951843834554376262),
+            name: Some(String::from("ruggahPain")),
+        }
+    } else {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(730_890_894_814_740_541),
+            name: Some(String::from("OGpeepoYes")),
+        }
+    };
+    let gardeners_reacted = msg.reaction_users(ctx, signup_emoji, Some(6), None).await?;
 
     let ids: Vec<u64> = gardeners_reacted
         .iter()
@@ -122,7 +127,7 @@ async fn gardener_select_menu_builder(
         .map(|gardeners| gardeners.id.get())
         .collect();
 
-    let mut gardener_select_menu_options = Vec::new();
+    let mut gardener_select_menu_options = vec![];
 
     for id in ids {
         match id {
@@ -153,7 +158,7 @@ async fn gardener_select_menu_builder(
             options: gardener_select_menu_options,
         },
     );
-    return Ok(gardener_select_menu);
+    Ok(gardener_select_menu)
 }
 
 async fn get_gardener_working(ctx: &Context<'_>, msg: &Message) -> Result<i64, Error> {
@@ -162,7 +167,7 @@ async fn get_gardener_working(ctx: &Context<'_>, msg: &Message) -> Result<i64, E
         .timeout(Duration::from_secs(60 * 2))
         .await
     {
-        Some(data) => data,
+        Some(interaction) => interaction,
         None => {
             msg.reply(&ctx, "Timed out").await?;
             return Err("Timed out".into());
