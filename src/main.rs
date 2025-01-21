@@ -1,10 +1,7 @@
 #![warn(clippy::pedantic)]
 
-use dotenv::dotenv;
+use poise::serenity_prelude::{self as serenity, EmojiId, ReactionType};
 use sqlx::{Pool, Sqlite, SqlitePool};
-use std::env;
-
-use poise::serenity_prelude::{self as serenity};
 
 mod commands;
 mod data;
@@ -12,6 +9,8 @@ use commands::*;
 
 pub struct Data {
     db: Pool<Sqlite>,
+    signup_emoji: ReactionType,
+    processed_emoji: ReactionType,
 }
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::ApplicationContext<'a, Data, Error>;
@@ -32,14 +31,39 @@ async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
-
-    let token = std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
+    let token = env!("DISCORD_TOKEN");
     let intents = serenity::GatewayIntents::all();
 
-    let db = SqlitePool::connect(&env::var("DATABASE_URL").unwrap())
+    let db = SqlitePool::connect(env!("DATABASE_URL"))
         .await
-        .unwrap();
+        .expect("Unable to connect to Database");
+
+    let signup_emoji = if cfg!(debug_assertions) {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(951843834554376262),
+            name: Some(String::from("ruggahPain")),
+        }
+    } else {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(730_890_894_814_740_541),
+            name: Some(String::from("OGpeepoYes")),
+        }
+    };
+    let processed_emoji = if cfg!(debug_assertions) {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(1_329_032_244_580_323_349),
+            name: Some(String::from("khezuBrain")),
+        }
+    } else {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(787_697_278_190_223_370),
+            name: Some(String::from("OGwecoo")),
+        }
+    };
 
     env_logger::init();
 
@@ -50,6 +74,7 @@ async fn main() {
                 signup::event(),
                 signup::gardener(),
                 signup::invoice(),
+                signup::manual(),
             ],
             on_error: |error| Box::pin(on_error(error)),
             pre_command: |ctx| {
@@ -77,7 +102,11 @@ async fn main() {
             Box::pin(async move {
                 println!("Logged in as {}", ready.user.name);
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-                Ok(Data { db: db })
+                Ok(Data {
+                    db,
+                    signup_emoji,
+                    processed_emoji,
+                })
             })
         })
         .build();
@@ -85,5 +114,10 @@ async fn main() {
     let client = serenity::ClientBuilder::new(token, intents)
         .framework(framework)
         .await;
-    client.unwrap().start().await.unwrap();
+
+    client
+        .expect("Unable to build client")
+        .start()
+        .await
+        .expect("Unable to start client");
 }

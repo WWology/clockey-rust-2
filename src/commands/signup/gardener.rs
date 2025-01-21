@@ -12,10 +12,12 @@ use crate::{
 #[poise::command(context_menu_command = "Roll Gardener")]
 pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
     if message_processed(&ctx, &msg).await? {
-        let reply = CreateReply::default()
-            .content("This message has been processed for signups")
-            .ephemeral(true);
-        ctx.send(reply).await?;
+        ctx.send(
+            CreateReply::default()
+                .content("This message has been processed for signups")
+                .ephemeral(true),
+        )
+        .await?;
         return Ok(());
     }
 
@@ -45,6 +47,9 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
         .insert(&ctx.data().db)
         .await?;
 
+    message
+        .react(&ctx, ctx.data().processed_emoji.clone())
+        .await?;
     ctx.interaction
         .edit_response(
             &ctx,
@@ -75,22 +80,8 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
 }
 
 async fn message_processed(ctx: &Context<'_>, msg: &Message) -> Result<bool, Error> {
-    let processed_emoji = if cfg!(debug_assertions) {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(1_329_032_244_580_323_349),
-            name: Some(String::from("khezuBrain")),
-        }
-    } else {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(787_697_278_190_223_370),
-            name: Some(String::from("OGwecoo")),
-        }
-    };
-
     let processed_reactions = msg
-        .reaction_users(ctx, processed_emoji, Some(1), None)
+        .reaction_users(ctx, ctx.data().processed_emoji.clone(), Some(1), None)
         .await?;
 
     if processed_reactions.is_empty() {
@@ -106,20 +97,9 @@ async fn gardener_select_menu_builder(
 ) -> Result<CreateSelectMenu, Error> {
     let clockey_id = ctx.interaction.application_id.get();
 
-    let signup_emoji = if cfg!(debug_assertions) {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(951843834554376262),
-            name: Some(String::from("ruggahPain")),
-        }
-    } else {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(730_890_894_814_740_541),
-            name: Some(String::from("OGpeepoYes")),
-        }
-    };
-    let gardeners_reacted = msg.reaction_users(ctx, signup_emoji, Some(6), None).await?;
+    let gardeners_reacted = msg
+        .reaction_users(ctx, ctx.data().signup_emoji.clone(), Some(6), None)
+        .await?;
 
     let ids: Vec<u64> = gardeners_reacted
         .iter()

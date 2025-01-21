@@ -1,14 +1,9 @@
-use crate::{Context, Error};
-use log::{log, Level};
 use poise::serenity_prelude::{
-    CreateAllowedMentions, CreateScheduledEvent, EmojiId, ReactionType, ScheduledEventType,
-    Timestamp,
+    CreateAllowedMentions, CreateScheduledEvent, ScheduledEventType, Timestamp,
 };
 use poise::{CreateReply, Modal};
 
-const DOTA_CHANNEL_ID: u64 = 738_009_797_932_351_519;
-const CS_CHANNEL_ID: u64 = 746_618_267_434_614_804;
-const OG_STAGE_CHANNEL_ID: u64 = 1_186_593_338_300_842_025;
+use crate::{Context, Error};
 
 #[poise::command(slash_command)]
 pub async fn event(
@@ -38,7 +33,7 @@ pub async fn event(
             channel_id = if cfg!(debug_assertions) {
                 738_607_620_566_286_398
             } else {
-                DOTA_CHANNEL_ID
+                super::DOTA_CHANNEL_ID
             };
             scheduled_type = ScheduledEventType::Voice;
         }
@@ -53,7 +48,7 @@ pub async fn event(
             channel_id = if cfg!(debug_assertions) {
                 738_607_620_566_286_398
             } else {
-                CS_CHANNEL_ID
+                super::CS_CHANNEL_ID
             };
             scheduled_type = ScheduledEventType::Voice;
         }
@@ -68,7 +63,7 @@ pub async fn event(
             channel_id = if cfg!(debug_assertions) {
                 991_620_472_544_440_454
             } else {
-                OG_STAGE_CHANNEL_ID
+                super::OG_STAGE_CHANNEL_ID
             };
             scheduled_type = ScheduledEventType::StageInstance;
         }
@@ -77,7 +72,7 @@ pub async fn event(
     if let EventChoice::Other = event_type {
         reply_text = format!(
             "Hey <@&720253636797530203>\
-            \n\nI need 1 gardener to work the {}, at <t:{}:F>\
+            \n\nI need 1 gardener to work {}, at <t:{}:F>\
             \n\nPlease react below with a <:OGpeepoYes:730890894814740541> to sign up!\
             \n\nYou will be able to add {} hours of work to your invoice for the month",
             name, time, hours
@@ -85,7 +80,7 @@ pub async fn event(
     } else {
         reply_text = format!(
             "Hey <@&720253636797530203>\
-            \n\nI need 1 gardener to work the {}, at <t:{}:F>\
+            \n\nI need 1 gardener to work {}, at <t:{}:F>\
             \n\nPlease react below with a <:OGpeepoYes:730890894814740541> to sign up!\
             \n\nAs this is a {}, you will be able to add {} hours of work to your invoice for the month",
             name,
@@ -98,30 +93,17 @@ pub async fn event(
     let start_time = match time.parse::<i64>() {
         Ok(unix) => Timestamp::from_unix_timestamp(unix)?,
         Err(error) => {
-            log!(Level::Error, "Error parsing time string to i64: {}", time);
             return Err(error.into());
         }
     };
-    let event = CreateScheduledEvent::new(scheduled_type, name, start_time).channel_id(channel_id);
 
     ctx.guild_id()
         .ok_or_else(|| "error getting guild id")?
-        .create_scheduled_event(ctx, event)
+        .create_scheduled_event(
+            ctx,
+            CreateScheduledEvent::new(scheduled_type, name, start_time).channel_id(channel_id),
+        )
         .await?;
-
-    let signup_emoji = if cfg!(debug_assertions) {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(951843834554376262),
-            name: Some(String::from("ruggahPain")),
-        }
-    } else {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(730_890_894_814_740_541),
-            name: Some(String::from("OGpeepoYes")),
-        }
-    };
 
     let msg = if ping {
         ctx.say(reply_text).await?.into_message().await?
@@ -134,7 +116,7 @@ pub async fn event(
         ctx.send(reply).await?.into_message().await?
     };
 
-    msg.react(&ctx, signup_emoji).await?;
+    msg.react(&ctx, ctx.data().signup_emoji.clone()).await?;
     Ok(())
 }
 
