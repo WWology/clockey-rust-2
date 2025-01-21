@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use chrono::Utc;
 use poise::{
     serenity_prelude::{CreateScheduledEvent, ScheduledEventType, Timestamp},
