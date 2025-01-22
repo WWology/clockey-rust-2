@@ -5,7 +5,7 @@ use sqlx::{Pool, Sqlite, SqlitePool};
 
 mod commands;
 mod data;
-use commands::*;
+use commands::{ping, signup};
 
 pub struct Data {
     db: Pool<Sqlite>,
@@ -17,13 +17,13 @@ type Context<'a> = poise::ApplicationContext<'a, Data, Error>;
 
 async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
     match error {
-        poise::FrameworkError::Setup { error, .. } => panic!("Failed to start bot: {:?}", error),
+        poise::FrameworkError::Setup { error, .. } => panic!("Failed to start bot: {error:?}"),
         poise::FrameworkError::Command { error, ctx, .. } => {
             println!("Error in command `{}`: {:?}", ctx.command().name, error,);
         }
         error => {
             if let Err(e) = poise::builtins::on_error(error).await {
-                println!("Error while handling error: {}", e)
+                println!("Error while handling error: {e}");
             }
         }
     }
@@ -41,7 +41,7 @@ async fn main() {
     let signup_emoji = if cfg!(debug_assertions) {
         ReactionType::Custom {
             animated: false,
-            id: EmojiId::new(951843834554376262),
+            id: EmojiId::new(951_843_834_554_376_262),
             name: Some(String::from("ruggahPain")),
         }
     } else {
@@ -65,7 +65,7 @@ async fn main() {
         }
     };
 
-    env_logger::init();
+    tracing_subscriber::fmt::init();
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
@@ -75,6 +75,7 @@ async fn main() {
                 signup::gardener(),
                 signup::invoice(),
                 signup::manual(),
+                signup::edit(),
             ],
             on_error: |error| Box::pin(on_error(error)),
             pre_command: |ctx| {

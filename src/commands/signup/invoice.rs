@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use poise::{
     serenity_prelude::{CreateEmbed, CreateEmbedAuthor, Member, Timestamp},
@@ -18,12 +16,9 @@ pub async fn invoice(
 ) -> Result<(), Error> {
     ctx.defer_ephemeral().await?;
 
-    let member = ctx
-        .author_member()
-        .await
-        .ok_or_else(|| "Failed to find Member")?;
+    let member = ctx.author_member().await.ok_or("Failed to find Member")?;
 
-    let start = match NaiveDate::parse_from_str(&start_date, "%Y-%m-%d") {
+    let start = match NaiveDate::parse_from_str(start_date.as_str(), "%Y-%m-%d") {
         Ok(date) => date.and_time(NaiveTime::default()),
         Err(error) => {
             ctx.reply("Start date format is invalid, please use YYYY-MM-DD format")
@@ -33,7 +28,7 @@ pub async fn invoice(
     };
 
     let end = match end_date {
-        Some(end_date) => match NaiveDate::parse_from_str(&end_date, "%Y-%m-%d") {
+        Some(end_date) => match NaiveDate::parse_from_str(end_date.as_str(), "%Y-%m-%d") {
             Ok(date) => date.and_time(NaiveTime::default()),
             Err(error) => {
                 ctx.reply("End date format is invalid, please use YYYY-MM-DD format")
@@ -49,26 +44,26 @@ pub async fn invoice(
         &ctx.data().db,
         start.and_utc().timestamp(),
         end.and_utc().timestamp(),
-        gardener_id as i64,
+        i64::try_from(gardener_id)?,
     )
     .await?;
     let cs_invoice = Event::get_cs_events(
         &ctx.data().db,
         start.and_utc().timestamp(),
         end.and_utc().timestamp(),
-        gardener_id as i64,
+        i64::try_from(gardener_id)?,
     )
     .await?;
     let other_invoice = Event::get_other_events(
         &ctx.data().db,
         start.and_utc().timestamp(),
         end.and_utc().timestamp(),
-        gardener_id as i64,
+        i64::try_from(gardener_id)?,
     )
     .await?;
 
     let invoice_embed =
-        generate_embed(dota_invoice, cs_invoice, other_invoice, start, end, member)?;
+        generate_embed(dota_invoice, cs_invoice, other_invoice, start, end, &member)?;
     ctx.send(CreateReply::new().embed(invoice_embed)).await?;
 
     Ok(())
@@ -80,25 +75,26 @@ fn generate_embed(
     other_invoice: Vec<Event>,
     start: NaiveDateTime,
     end: NaiveDateTime,
-    member: Cow<'_, Member>,
+    member: &Member,
 ) -> Result<CreateEmbed, Error> {
     let (mut dota_events, mut cs_events, mut other_events): (String, String, String) =
         (String::new(), String::new(), String::new());
     let mut total_hours: i64 = 0;
 
     for event in dota_invoice {
-        let time = DateTime::from_timestamp(event.time, 0).ok_or_else(|| "Invalid Timestamp")?;
-        dota_events += &format!(
+        let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
+        dota_events += format!(
             "{} at {} - {} hours\n",
             event.name,
             time.format("%e %b, %Y"),
             event.hours
-        );
+        )
+        .as_str();
         total_hours += event.hours;
     }
 
     for event in cs_invoice {
-        let time = DateTime::from_timestamp(event.time, 0).ok_or_else(|| "Invalid Timestamp")?;
+        let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         cs_events += &format!(
             "{} at {} - {} hours\n",
             event.name,
@@ -109,7 +105,7 @@ fn generate_embed(
     }
 
     for event in other_invoice {
-        let time = DateTime::from_timestamp(event.time, 0).ok_or_else(|| "Invalid Timestamp")?;
+        let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         other_events += &format!(
             "{} at {} - {} hours\n",
             event.name,

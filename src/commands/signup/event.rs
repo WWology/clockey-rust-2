@@ -23,9 +23,7 @@ pub async fn event(
 
     match event_type {
         EventChoice::Dota => {
-            let data = GameModal::execute(ctx)
-                .await?
-                .ok_or_else(|| "No data provided")?;
+            let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
             name = format!("Dota - {}", data.name);
             time = data.time;
             hours = get_hours(data.series_length.as_str())?;
@@ -38,9 +36,7 @@ pub async fn event(
             scheduled_type = ScheduledEventType::Voice;
         }
         EventChoice::CS => {
-            let data = GameModal::execute(ctx)
-                .await?
-                .ok_or_else(|| "No data provided")?;
+            let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
             name = format!("CS - {}", data.name);
             time = data.time;
             hours = get_hours(data.series_length.as_str())?;
@@ -53,9 +49,7 @@ pub async fn event(
             scheduled_type = ScheduledEventType::Voice;
         }
         EventChoice::Other => {
-            let data = EventModal::execute(ctx)
-                .await?
-                .ok_or_else(|| "No data provided")?;
+            let data = EventModal::execute(ctx).await?.ok_or("No data provided")?;
             name = format!("Other - {}", data.name);
             time = data.time;
             hours = data.hours.parse::<u8>()?;
@@ -72,10 +66,9 @@ pub async fn event(
     if let EventChoice::Other = event_type {
         reply_text = format!(
             "Hey <@&720253636797530203>\
-            \n\nI need 1 gardener to work {}, at <t:{}:F>\
+            \n\nI need 1 gardener to work {name}, at <t:{time}:F>\
             \n\nPlease react below with a <:OGpeepoYes:730890894814740541> to sign up!\
-            \n\nYou will be able to add {} hours of work to your invoice for the month",
-            name, time, hours
+            \n\nYou will be able to add {hours} hours of work to your invoice for the month"
         );
     } else {
         reply_text = format!(
@@ -98,9 +91,9 @@ pub async fn event(
     };
 
     ctx.guild_id()
-        .ok_or_else(|| "error getting guild id")?
+        .ok_or("error getting guild id")?
         .create_scheduled_event(
-            ctx,
+            &ctx,
             CreateScheduledEvent::new(scheduled_type, name, start_time).channel_id(channel_id),
         )
         .await?;

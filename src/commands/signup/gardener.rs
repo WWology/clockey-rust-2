@@ -42,7 +42,7 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
         }
     };
 
-    let (name, time, event_type, hours) = parse_message(&msg.content)?;
+    let (name, time, event_type, hours) = parse_message(msg.content.as_str())?;
     Event::new(name.as_str(), time, event_type, gardener_working, hours)
         .insert(&ctx.data().db)
         .await?;
@@ -71,8 +71,7 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
         .send_message(
             &ctx,
             CreateMessage::new().content(format!(
-                "The gardener working on {} is <@{}>",
-                name, gardener_working
+                "The gardener working on {name} is <@{gardener_working}>"
             )),
         )
         .await?;
@@ -112,19 +111,20 @@ async fn gardener_select_menu_builder(
     for id in ids {
         match id {
             293_360_731_867_316_225 => {
-                gardener_select_menu_options.push(CreateSelectMenuOption::new("Nik", "Nik"))
+                gardener_select_menu_options.push(CreateSelectMenuOption::new("Nik", "Nik"));
             }
             204_923_365_205_475_329 => {
-                gardener_select_menu_options.push(CreateSelectMenuOption::new("Kit", "Kit"))
+                gardener_select_menu_options.push(CreateSelectMenuOption::new("Kit", "Kit"));
             }
             754_724_309_276_164_159 => {
-                gardener_select_menu_options.push(CreateSelectMenuOption::new("WW", "WW"))
+                gardener_select_menu_options.push(CreateSelectMenuOption::new("WW", "WW"));
             }
             172_360_818_715_918_337 => {
-                gardener_select_menu_options.push(CreateSelectMenuOption::new("Bonteng", "Bonteng"))
+                gardener_select_menu_options
+                    .push(CreateSelectMenuOption::new("Bonteng", "Bonteng"));
             }
             332_438_787_588_227_072 => {
-                gardener_select_menu_options.push(CreateSelectMenuOption::new("Sam", "Sam"))
+                gardener_select_menu_options.push(CreateSelectMenuOption::new("Sam", "Sam"));
             }
             _ => {
                 return Err("Invalid gardener ID".into());
@@ -142,16 +142,13 @@ async fn gardener_select_menu_builder(
 }
 
 async fn get_gardener_working(ctx: &Context<'_>, msg: &Message) -> Result<i64, Error> {
-    let interaction = match msg
+    let Some(interaction) = msg
         .await_component_interaction(&ctx.serenity_context().shard)
         .timeout(Duration::from_secs(60 * 2))
         .await
-    {
-        Some(interaction) => interaction,
-        None => {
-            msg.reply(&ctx, "Timed out").await?;
-            return Err("Timed out".into());
-        }
+    else {
+        msg.reply(ctx, "Timed out").await?;
+        return Err("Timed out".into());
     };
 
     let gardener_selected = match &interaction.data.kind {
@@ -187,24 +184,24 @@ fn parse_message(msg: &str) -> Result<EventDetail, Error> {
 
     let name = Regex::new(r"-\s*(.*?)\s*,")?
         .captures(msg)
-        .ok_or_else(|| "Failed to find name")?
+        .ok_or("Failed to find name")?
         .get(1)
-        .ok_or_else(|| "Failed to find name")?
+        .ok_or("Failed to find name")?
         .as_str();
 
     let unix_time = Regex::new(r"<t:(\d+):F>")?
         .captures(msg)
-        .ok_or_else(|| "Failed to find time")?
+        .ok_or("Failed to find time")?
         .get(1)
-        .ok_or_else(|| "Failed to find time")?
+        .ok_or("Failed to find time")?
         .as_str();
     let time = Timestamp::from_unix_timestamp(unix_time.trim().parse::<i64>()?)?.naive_utc();
 
     let hours = Regex::new(r"\badd\s*(\d)\s*")?
         .captures(msg)
-        .ok_or_else(|| "Failed to find hours")?
+        .ok_or("Failed to find hours")?
         .get(1)
-        .ok_or_else(|| "Failed to find hours")?
+        .ok_or("Failed to find hours")?
         .as_str()
         .parse::<i64>()?;
 

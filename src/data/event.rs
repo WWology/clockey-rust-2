@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+
 use chrono::NaiveDateTime;
 use sqlx::{prelude::FromRow, Pool, Sqlite, Type};
 

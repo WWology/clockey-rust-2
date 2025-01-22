@@ -11,7 +11,7 @@ pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
     let latency = start.elapsed().as_millis();
     msg.edit(
         poise::Context::Application(ctx),
-        CreateReply::default().content(format!("Pong! {}ms", latency)),
+        CreateReply::default().content(format!("Pong! {latency}ms")),
     )
     .await?;
 

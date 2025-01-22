@@ -15,11 +15,9 @@ pub async fn manual(
     #[description = "Type of the event"] event_choice: EventChoice,
     #[description = "Gardener to work on the event"] gardener: GardenerChoice,
 ) -> Result<(), Error> {
-    let gardener_id: i64 = get_gardener_id(gardener);
+    let gardener_id: i64 = get_gardener_id(&gardener);
 
-    let data = ManualModal::execute(ctx)
-        .await?
-        .ok_or_else(|| "No data provided")?;
+    let data = ManualModal::execute(ctx).await?.ok_or("No data provided")?;
 
     let start_time = match data.time.parse::<i64>() {
         Ok(unix) => Timestamp::from_unix_timestamp(unix)?,
@@ -93,11 +91,10 @@ pub async fn manual(
 
     if Utc::now().timestamp() < start_time.timestamp() {
         ctx.guild_id()
-            .ok_or_else(|| "Error getting guild id")?
+            .ok_or("Error getting guild id")?
             .create_scheduled_event(
                 ctx,
-                CreateScheduledEvent::new(scheduled_type, &name, &start_time)
-                    .channel_id(channel_id),
+                CreateScheduledEvent::new(scheduled_type, &name, start_time).channel_id(channel_id),
             )
             .await?;
     }
@@ -116,7 +113,7 @@ pub async fn manual(
     Ok(())
 }
 
-fn get_gardener_id(gardener: GardenerChoice) -> i64 {
+fn get_gardener_id(gardener: &GardenerChoice) -> i64 {
     match gardener {
         GardenerChoice::Nik => 293_360_731_867_316_225,
         GardenerChoice::Kit => 204_923_365_205_475_329,
