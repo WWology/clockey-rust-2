@@ -42,7 +42,7 @@ impl Event {
     pub async fn insert(&self, db: &Pool<Sqlite>) -> Result<(), Error> {
         sqlx::query_file_as!(
             Event,
-            "src/data/sql/insert_event.sql",
+            "src/data/event/sql/insert_event.sql",
             self.name,
             self.time,
             self.event_type,
@@ -62,7 +62,7 @@ impl Event {
     ) -> Result<Vec<Event>, Error> {
         let dota_rows = sqlx::query_file_as!(
             Event,
-            "src/data/sql/get_dota_events.sql",
+            "src/data/event/sql/get_dota_events.sql",
             start,
             end,
             gardener_id
@@ -81,7 +81,7 @@ impl Event {
     ) -> Result<Vec<Event>, Error> {
         let cs_rows = sqlx::query_file_as!(
             Event,
-            "src/data/sql/get_cs_events.sql",
+            "src/data/event/sql/get_cs_events.sql",
             start,
             end,
             gardener_id
@@ -99,7 +99,7 @@ impl Event {
     ) -> Result<Vec<Event>, Error> {
         let other_rows = sqlx::query_file_as!(
             Event,
-            "src/data/sql/get_other_events.sql",
+            "src/data/event/sql/get_other_events.sql",
             start,
             end,
             gardener_id
