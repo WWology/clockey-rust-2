@@ -5,7 +5,7 @@ use sqlx::{Pool, Sqlite, SqlitePool};
 
 mod commands;
 mod data;
-use commands::{ping, signup};
+use commands::{ping, prediction, signup};
 
 pub struct Data {
     db: Pool<Sqlite>,
@@ -76,6 +76,10 @@ async fn main() {
                 signup::invoice(),
                 signup::manual(),
                 signup::edit(),
+                prediction::dotabo(),
+                prediction::csbo(),
+                prediction::deletedota(),
+                prediction::deletecs(),
             ],
             on_error: |error| Box::pin(on_error(error)),
             pre_command: |ctx| {
@@ -96,7 +100,12 @@ async fn main() {
                     );
                 })
             },
-
+            event_handler: |_framework, event| {
+                Box::pin(async move {
+                    if let serenity::FullEvent::CacheReady { guilds } = event {}
+                    Ok(())
+                })
+            },
             ..Default::default()
         })
         .setup(|ctx, ready, framework| {
