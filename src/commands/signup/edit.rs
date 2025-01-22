@@ -46,6 +46,6 @@ pub async fn edit(
 
     msg.edit(&ctx, EditMessage::new().content(new_message.as_str()))
         .await?;
-
+    ctx.reply("Updated the signup message").await?;
     Ok(())
 }
