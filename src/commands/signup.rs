@@ -1,8 +1,10 @@
+mod edit;
 mod event;
 mod gardener;
 mod invoice;
 mod manual;
 
+pub use edit::edit;
 pub use event::event;
 pub use gardener::gardener;
 pub use invoice::invoice;
