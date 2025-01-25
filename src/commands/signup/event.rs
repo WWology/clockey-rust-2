@@ -3,12 +3,12 @@ use poise::serenity_prelude::{
 };
 use poise::{CreateReply, Modal};
 
-use crate::{Context, Error};
+use crate::{data::event::EventType, Context, Error};
 
 #[poise::command(slash_command)]
 pub async fn event(
     ctx: Context<'_>,
-    #[description = "The type of event"] event_type: EventChoice,
+    #[description = "The type of event"] event_type: EventType,
     #[description = "Ping gardeners or not"] ping: Option<bool>,
 ) -> Result<(), Error> {
     let reply_text: String;
@@ -22,7 +22,7 @@ pub async fn event(
     let ping = ping.unwrap_or(true);
 
     match event_type {
-        EventChoice::Dota => {
+        EventType::Dota => {
             let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
             name = format!("Dota - {}", data.name);
             time = data.time;
@@ -35,7 +35,7 @@ pub async fn event(
             };
             scheduled_type = ScheduledEventType::Voice;
         }
-        EventChoice::CS => {
+        EventType::CS => {
             let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
             name = format!("CS - {}", data.name);
             time = data.time;
@@ -48,7 +48,7 @@ pub async fn event(
             };
             scheduled_type = ScheduledEventType::Voice;
         }
-        EventChoice::Other => {
+        EventType::Other => {
             let data = EventModal::execute(ctx).await?.ok_or("No data provided")?;
             name = format!("Other - {}", data.name);
             time = data.time;
@@ -63,7 +63,7 @@ pub async fn event(
         }
     }
 
-    if let EventChoice::Other = event_type {
+    if let EventType::Other = event_type {
         reply_text = format!(
             "Hey <@&720253636797530203>\
             \n\nI need 1 gardener to work {name}, at <t:{time}:F>\
@@ -111,18 +111,6 @@ pub async fn event(
 
     msg.react(&ctx, ctx.data().signup_emoji.clone()).await?;
     Ok(())
-}
-
-#[derive(Debug, poise::ChoiceParameter)]
-enum EventChoice {
-    #[name = "Dota"]
-    Dota,
-
-    #[name = "CS"]
-    CS,
-
-    #[name = "Other"]
-    Other,
 }
 
 #[derive(Debug, Modal)]

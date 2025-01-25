@@ -1,15 +1,18 @@
-#![allow(clippy::all)]
-
 use chrono::NaiveDateTime;
 use sqlx::{prelude::FromRow, Pool, Sqlite, Type};
 
 use crate::Error;
 
-#[derive(Type, Debug, Copy, Clone)]
+#[derive(Type, Debug, Copy, Clone, poise::ChoiceParameter)]
 #[sqlx(type_name = "type")]
 pub enum EventType {
+    #[name = "Dota"]
     Dota,
+
+    #[name = "CS"]
     CS,
+
+    #[name = "Other"]
     Other,
 }
 
