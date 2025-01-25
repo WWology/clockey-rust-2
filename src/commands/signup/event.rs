@@ -78,7 +78,7 @@ pub async fn event(
             \n\nAs this is a {}, you will be able to add {} hours of work to your invoice for the month",
             name,
             time,
-            series_length.unwrap(),
+            series_length.expect("Series length missing"),
             hours,
         );
     }
