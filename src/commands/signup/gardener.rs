@@ -1,3 +1,4 @@
+use futures::future;
 use std::time::Duration;
 
 use chrono::NaiveDateTime;
@@ -47,26 +48,24 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
         .insert(&ctx.data().db)
         .await?;
 
-    message
-        .react(&ctx, ctx.data().processed_emoji.clone())
-        .await?;
-    ctx.interaction
-        .edit_response(
+    future::try_join3(
+        message.react(&ctx, ctx.data().processed_emoji.clone()),
+        ctx.interaction.edit_response(
             &ctx,
-            EditInteractionResponse::default()
+            EditInteractionResponse::new()
                 .content("Hours added to the database")
                 .components(vec![]),
-        )
-        .await?;
-    ctx.channel_id()
-        .send_message(
+        ),
+        ctx.channel_id().send_message(
             &ctx,
             CreateMessage::new().reference_message(
                 MessageReference::new(MessageReferenceKind::Forward, ctx.channel_id())
                     .message_id(msg.id),
             ),
-        )
-        .await?;
+        ),
+    )
+    .await?;
+
     ctx.channel_id()
         .send_message(
             &ctx,
@@ -106,7 +105,7 @@ async fn gardener_select_menu_builder(
         .map(|gardeners| gardeners.id.get())
         .collect();
 
-    let mut gardener_select_menu_options = vec![];
+    let mut gardener_select_menu_options = Vec::with_capacity(5);
 
     for id in ids {
         match id {

@@ -1,11 +1,14 @@
 #![warn(clippy::pedantic)]
 
-use poise::serenity_prelude::{self as serenity, EmojiId, ReactionType};
+use poise::{
+    serenity_prelude::{self as serenity, ChunkGuildFilter, EmojiId, ReactionType},
+    FrameworkContext,
+};
 use sqlx::{Pool, Sqlite, SqlitePool};
 
 mod commands;
 mod data;
-use commands::{ping, prediction, signup};
+use commands::{next, ping, prediction, signup};
 
 pub struct Data {
     db: Pool<Sqlite>,
@@ -27,6 +30,31 @@ async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
             }
         }
     }
+}
+
+#[allow(clippy::unused_async)]
+async fn event_handler(
+    framework: FrameworkContext<'_, Data, Error>,
+    event: &serenity::FullEvent,
+) -> Result<(), Error> {
+    let ctx = framework.serenity_context;
+    match event {
+        serenity::FullEvent::CacheReady { guilds } => {
+            for guild_id in guilds {
+                ctx.shard
+                    .chunk_guild(*guild_id, None, true, ChunkGuildFilter::None, None);
+            }
+        }
+        serenity::FullEvent::GuildMembersChunk { chunk } => {
+            println!(
+                "Chunked guild {} with member count {}",
+                chunk.guild_id, chunk.chunk_count
+            );
+        }
+        _ => {}
+    }
+
+    Ok(())
 }
 
 #[tokio::main]
@@ -71,17 +99,21 @@ async fn main() {
         .options(poise::FrameworkOptions {
             commands: vec![
                 ping(),
+                next(),
                 signup::event(),
                 signup::gardener(),
                 signup::invoice(),
                 signup::manual(),
                 signup::edit(),
-                prediction::dotabo(),
+                prediction::csadd(),
                 prediction::csbo(),
-                prediction::deletedota(),
                 prediction::deletecs(),
+                prediction::deletedota(),
+                prediction::dotaadd(),
+                prediction::dotabo(),
             ],
             on_error: |error| Box::pin(on_error(error)),
+            event_handler: |framework, event| Box::pin(event_handler(framework, event)),
             pre_command: |ctx| {
                 Box::pin(async move {
                     println!(
@@ -98,12 +130,6 @@ async fn main() {
                         ctx.command().qualified_name,
                         ctx.author().display_name()
                     );
-                })
-            },
-            event_handler: |_framework, event| {
-                Box::pin(async move {
-                    if let serenity::FullEvent::CacheReady { guilds } = event {}
-                    Ok(())
                 })
             },
             ..Default::default()
