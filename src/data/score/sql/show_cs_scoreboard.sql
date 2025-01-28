@@ -6,6 +6,4 @@ SELECT
     id,
     score
 FROM
-    cs_scoreboard
-ORDER BY
-    score DESC;
+    cs_scoreboard;

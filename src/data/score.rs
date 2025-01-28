@@ -26,6 +26,14 @@ pub async fn update_dota_scoreboard(db: &Pool<Sqlite>, id: u64) -> Result<(), Er
     Ok(())
 }
 
+pub async fn get_dota_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
+    let id = i64::try_from(id)?;
+    let row = sqlx::query_file_as!(Score, "src/data/score/sql/get_dota_score_for_id.sql", id)
+        .fetch_one(db)
+        .await?;
+    Ok(row)
+}
+
 pub async fn show_cs_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
     let scoreboard = sqlx::query_file_as!(Score, "src/data/score/sql/show_cs_scoreboard.sql")
         .fetch_all(db)
@@ -39,4 +47,12 @@ pub async fn update_cs_scoreboard(db: &Pool<Sqlite>, id: u64) -> Result<(), Erro
         .execute(db)
         .await?;
     Ok(())
+}
+
+pub async fn get_cs_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
+    let id = i64::try_from(id)?;
+    let row = sqlx::query_file_as!(Score, "src/data/score/sql/get_cs_score_for_id.sql", id)
+        .fetch_one(db)
+        .await?;
+    Ok(row)
 }

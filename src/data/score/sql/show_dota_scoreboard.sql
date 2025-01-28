@@ -6,6 +6,4 @@ SELECT
     id,
     score
 FROM
-    dota_scoreboard
-ORDER BY
-    score DESC;
+    dota_scoreboard;
