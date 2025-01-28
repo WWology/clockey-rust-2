@@ -3,7 +3,7 @@ use poise::serenity_prelude::{
 };
 use poise::{CreateReply, Modal};
 
-use crate::{data::event::EventType, Context, Error};
+use crate::{Context, Error, data::event::EventType};
 
 #[poise::command(slash_command)]
 pub async fn event(

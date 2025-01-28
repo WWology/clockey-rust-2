@@ -1,12 +1,12 @@
 use chrono::Utc;
 use poise::{
-    serenity_prelude::{CreateScheduledEvent, ScheduledEventType, Timestamp},
     Modal,
+    serenity_prelude::{CreateScheduledEvent, ScheduledEventType, Timestamp},
 };
 
 use crate::{
-    data::event::{Event, EventType},
     Context, Error,
+    data::event::{Event, EventType},
 };
 
 #[poise::command(slash_command)]

@@ -1,8 +1,8 @@
 #![warn(clippy::pedantic)]
 
 use poise::{
-    serenity_prelude::{self as serenity, ChunkGuildFilter, EmojiId, ReactionType},
     FrameworkContext,
+    serenity_prelude::{self as serenity, ChunkGuildFilter, EmojiId, ReactionType},
 };
 use sqlx::{Pool, Sqlite, SqlitePool};
 
@@ -98,19 +98,23 @@ async fn main() {
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
             commands: vec![
+                // General purpose command
                 ping(),
                 next(),
+                // Signup related command
                 signup::event(),
                 signup::gardener(),
                 signup::invoice(),
                 signup::manual(),
                 signup::edit(),
+                // Prediction related command
                 prediction::csadd(),
                 prediction::csbo(),
                 prediction::deletecs(),
                 prediction::deletedota(),
                 prediction::dotaadd(),
                 prediction::dotabo(),
+                prediction::show(),
             ],
             on_error: |error| Box::pin(on_error(error)),
             event_handler: |framework, event| Box::pin(event_handler(framework, event)),

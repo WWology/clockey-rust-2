@@ -1,10 +1,10 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use poise::{
-    serenity_prelude::{CreateEmbed, CreateEmbedAuthor, Member, Timestamp},
     CreateReply,
+    serenity_prelude::{CreateEmbed, CreateEmbedAuthor, Member, Timestamp},
 };
 
-use crate::{data::event::Event, Context, Error};
+use crate::{Context, Error, data::event::Event};
 
 #[poise::command(slash_command)]
 pub async fn invoice(
@@ -115,7 +115,7 @@ fn generate_embed(
         total_hours += event.hours;
     }
 
-    let embed = CreateEmbed::default()
+    let embed = CreateEmbed::new()
         .author(CreateEmbedAuthor::new(member.display_name()).icon_url(member.face()))
         .title(format!("{} - {}", start.format("%B"), end.format("%B")))
         .fields(vec![

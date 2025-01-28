@@ -1,6 +1,6 @@
 use poise::serenity_prelude::Role;
 
-use crate::{data::score, Context, Error};
+use crate::{Context, Error, data::score};
 
 #[poise::command(slash_command)]
 pub async fn dotaadd(ctx: Context<'_>, role: Role) -> Result<(), Error> {
