@@ -1,8 +1,11 @@
 use poise::{
     CreateReply,
-    serenity_prelude::{self as serenity, CreateEmbedAuthor, UserId},
+    serenity_prelude::{self as serenity, CreateEmbedAuthor, Mentionable, UserId},
 };
-use tabled::{builder::Builder, settings::Style};
+use tabled::{
+    builder::Builder,
+    settings::{Alignment, Style},
+};
 
 use crate::{Context, Error, data};
 
@@ -13,99 +16,136 @@ pub async fn show(_: Context<'_>) -> Result<(), Error> {
 }
 
 #[poise::command(slash_command)]
-pub async fn dota(ctx: Context<'_>) -> Result<(), Error> {
+pub async fn dota(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<(), Error> {
     ctx.defer().await?;
 
-    let scoreboard = data::score::show_dota_scoreboard(&ctx.data().db).await?;
-    let total_page = scoreboard.len() / 10 + 1;
-    let mut pages: Vec<String> = vec![];
+    if let Some(member) = member {
+        let score =
+            data::score::get_dota_score_for_id(&ctx.data().db, member.user.id.get()).await?;
+        ctx.reply(format!(
+            "The Dota score prediction for {} is {} ranked at {}",
+            member.mention(),
+            score.score,
+            score.rank
+        ))
+        .await?;
+    } else {
+        let scoreboard = data::score::show_dota_scoreboard(&ctx.data().db).await?;
+        let total_page = scoreboard.len() / 10 + 1;
+        let mut pages: Vec<String> = vec![];
 
-    for page in 1..=total_page {
-        let mut builder = Builder::new();
-        builder.push_record(["Rank", "Name", "Score"]);
+        for page in 1..=total_page {
+            let mut builder = Builder::new();
+            builder.push_record(["Rank", "Name", "Score"]);
 
-        let offset = (page - 1) * 10;
-        let score_iter = scoreboard.iter().skip(offset).take(10);
-        for score in score_iter {
-            if let Ok(member) = ctx
-                .guild_id()
-                .ok_or("Failed to find guild")?
-                .member(&ctx, UserId::new(u64::try_from(score.id)?))
-                .await
-            {
-                let name = truncate(member.display_name());
-                builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
-            } else if let Ok(user) = ctx
-                .http()
-                .get_user(UserId::new(u64::try_from(score.id)?))
-                .await
-            {
-                let name = truncate(user.display_name());
-                builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
-            } else {
-                let name = format!("{}...", &score.id.to_string()[0..9]);
-                builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+            let offset = (page - 1) * 10;
+            let score_iter = scoreboard.iter().skip(offset).take(10);
+            for score in score_iter {
+                if let Ok(member) = ctx
+                    .guild_id()
+                    .ok_or("Failed to find guild")?
+                    .member(&ctx, UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(member.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else if let Ok(user) = ctx
+                    .http()
+                    .get_user(UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(user.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else {
+                    let name = format!("{}...", &score.id.to_string()[0..9]);
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                }
             }
+            let table = builder
+                .build()
+                .with(Style::markdown().remove_left().remove_right())
+                .with(Alignment::center_vertical())
+                .with(Alignment::center())
+                .to_string();
+            pages.push(table);
         }
-        let table = builder.build().with(Style::markdown()).to_string();
-        pages.push(table);
-    }
 
-    paginate(ctx, pages).await?;
+        paginate(ctx, pages, "Dota Prediction Leaderboard").await?;
+    }
     Ok(())
 }
 
 #[poise::command(slash_command)]
-pub async fn cs(ctx: Context<'_>) -> Result<(), Error> {
+pub async fn cs(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<(), Error> {
     ctx.defer().await?;
 
-    let scoreboard = data::score::show_cs_scoreboard(&ctx.data().db).await?;
-    let total_page = scoreboard.len() / 10 + 1;
-    let mut pages: Vec<String> = vec![];
+    if let Some(member) = member {
+        let score = data::score::get_cs_score_for_id(&ctx.data().db, member.user.id.get()).await?;
+        ctx.reply(format!(
+            "The Dota score prediction for {} is {} ranked at {}",
+            member.mention(),
+            score.score,
+            score.rank
+        ))
+        .await?;
+    } else {
+        let scoreboard = data::score::show_cs_scoreboard(&ctx.data().db).await?;
+        let total_page = scoreboard.len() / 10 + 1;
+        let mut pages: Vec<String> = vec![];
 
-    for page in 1..=total_page {
-        let mut builder = Builder::new();
-        builder.push_record(["Rank", "Name", "Score"]);
+        for page in 1..=total_page {
+            let mut builder = Builder::new();
+            builder.push_record(["Rank", "Name", "Score"]);
 
-        let offset = (page - 1) * 10;
-        let score_iter = scoreboard.iter().skip(offset).take(10);
-        for score in score_iter {
-            if let Ok(member) = ctx
-                .guild_id()
-                .ok_or("Failed to find guild")?
-                .member(&ctx, UserId::new(u64::try_from(score.id)?))
-                .await
-            {
-                let name = truncate(member.display_name());
-                builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
-            } else if let Ok(user) = ctx
-                .http()
-                .get_user(UserId::new(u64::try_from(score.id)?))
-                .await
-            {
-                let name = truncate(user.display_name());
-                builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
-            } else {
-                let name = format!("{}...", &score.id.to_string()[0..9]);
-                builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+            let offset = (page - 1) * 10;
+            let score_iter = scoreboard.iter().skip(offset).take(10);
+            for score in score_iter {
+                if let Ok(member) = ctx
+                    .guild_id()
+                    .ok_or("Failed to find guild")?
+                    .member(&ctx, UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(member.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else if let Ok(user) = ctx
+                    .http()
+                    .get_user(UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(user.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else {
+                    let name = format!("{}...", &score.id.to_string()[0..9]);
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                }
             }
+            let table = builder
+                .build()
+                .with(Style::markdown().remove_left().remove_right())
+                .with(Alignment::center_vertical())
+                .with(Alignment::center())
+                .to_string();
+            pages.push(table);
         }
-        let table = builder.build().with(Style::markdown()).to_string();
-        pages.push(table);
-    }
 
-    paginate(ctx, pages).await?;
+        paginate(ctx, pages, "CS Prediction Leaderboard").await?;
+    }
     Ok(())
 }
 
 fn truncate(name: &str) -> String {
     if name.len() > 12 {
-        return name.to_string();
+        return format!("{}...", &name[0..9]);
     }
     name.to_string()
 }
 
-pub async fn paginate(ctx: Context<'_>, pages: Vec<String>) -> Result<(), serenity::Error> {
+pub async fn paginate(
+    ctx: Context<'_>,
+    pages: Vec<String>,
+    title: &str,
+) -> Result<(), serenity::Error> {
     // Define some unique identifiers for the navigation buttons
     let ctx_id = ctx.id();
     let prev_button_id = format!("{ctx_id}prev");
@@ -120,13 +160,13 @@ pub async fn paginate(ctx: Context<'_>, pages: Vec<String>) -> Result<(), sereni
 
         CreateReply::default()
             .embed(
-                serenity::CreateEmbed::default()
+                serenity::CreateEmbed::new().title(title)
                     .author(
                         CreateEmbedAuthor::new("OG").icon_url(
                             "https://liquipedia.net/commons/images/thumb/7/70/OG_RB_allmode.png/1200px-OG_RB_allmode.png"
                         ),
                     )
-                    .field("", pages[0].clone(), true),
+                    .field("",format!("```{}```", pages[0].clone()), true),
             )
             .components(vec![components])
     };
@@ -162,11 +202,11 @@ pub async fn paginate(ctx: Context<'_>, pages: Vec<String>) -> Result<(), sereni
                 ctx.serenity_context(),
                 serenity::CreateInteractionResponse::UpdateMessage(
                     serenity::CreateInteractionResponseMessage::new().embed(
-                        serenity::CreateEmbed::new()
+                        serenity::CreateEmbed::new().title(title)
                             .author(CreateEmbedAuthor::new("OG").icon_url(
                                 "https://liquipedia.net/commons/images/thumb/7/70/OG_RB_allmode.png/1200px-OG_RB_allmode.png"
                             ))
-                            .field("", pages[current_page].clone(), true),
+                            .field("", format!("```{}```", pages[current_page].clone()), true),
                     ),
                 ),
             )
