@@ -15,6 +15,7 @@ pub async fn show(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
+/// Show dota scoreboard or user score and rank
 #[poise::command(slash_command)]
 pub async fn dota(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<(), Error> {
     ctx.defer().await?;
@@ -75,6 +76,7 @@ pub async fn dota(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<
     Ok(())
 }
 
+/// Show cs scoreboard or user score and rank
 #[poise::command(slash_command)]
 pub async fn cs(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<(), Error> {
     ctx.defer().await?;
