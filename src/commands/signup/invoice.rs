@@ -6,6 +6,7 @@ use poise::{
 
 use crate::{Context, Error, data::event::Event};
 
+/// Generate invoice for a gardener from start_date to end_date
 #[poise::command(slash_command)]
 pub async fn invoice(
     ctx: Context<'_>,

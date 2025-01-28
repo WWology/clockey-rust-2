@@ -1,5 +1,6 @@
 use crate::{Context, Error};
 
+/// Check the bot's gateway latency.
 #[poise::command(slash_command)]
 pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
     let shard_manager = ctx.framework.shard_manager;

@@ -9,6 +9,7 @@ use crate::{
     data::event::{Event, EventType},
 };
 
+/// Manually add signups to an event
 #[poise::command(slash_command)]
 pub async fn manual(
     ctx: Context<'_>,

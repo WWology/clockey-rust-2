@@ -6,6 +6,7 @@ pub async fn next(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
+/// Next dota game for OG
 #[poise::command(slash_command)]
 pub async fn dota(ctx: Context<'_>) -> Result<(), Error> {
     let guild_id = ctx.guild_id().ok_or("Failed to find guild")?;
@@ -29,6 +30,7 @@ pub async fn dota(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
+/// Next cs game for OG
 #[poise::command(slash_command)]
 pub async fn cs(ctx: Context<'_>) -> Result<(), Error> {
     let guild_id = ctx.guild_id().ok_or("Failed to find guild")?;

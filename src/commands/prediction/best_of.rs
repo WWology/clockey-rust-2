@@ -2,6 +2,7 @@ use poise::serenity_prelude::EditRole;
 
 use crate::{Context, Error};
 
+/// Create Dota roles for predictions
 #[poise::command(slash_command)]
 pub async fn dotabo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
     ctx.defer().await?;
@@ -53,6 +54,7 @@ pub async fn dotabo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
     Ok(())
 }
 
+/// Create CS roles for predictions
 #[poise::command(slash_command)]
 pub async fn csbo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
     ctx.defer().await?;
@@ -104,6 +106,7 @@ pub async fn csbo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
     Ok(())
 }
 
+/// Delete created Dota roles for prediction
 #[poise::command(slash_command)]
 pub async fn deletedota(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
     ctx.defer().await?;
@@ -168,6 +171,7 @@ pub async fn deletedota(ctx: Context<'_>, series_length: u8) -> Result<(), Error
     Ok(())
 }
 
+/// Delete created CS roles for prediction
 #[poise::command(slash_command)]
 pub async fn deletecs(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
     ctx.defer().await?;

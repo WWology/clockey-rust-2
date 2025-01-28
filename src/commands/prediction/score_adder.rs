@@ -2,6 +2,7 @@ use poise::serenity_prelude::Role;
 
 use crate::{Context, Error, data::score};
 
+/// Add scores to the Dota scoreboard for the winning role
 #[poise::command(slash_command)]
 pub async fn dotaadd(ctx: Context<'_>, role: Role) -> Result<(), Error> {
     ctx.defer().await?;
@@ -29,6 +30,7 @@ pub async fn dotaadd(ctx: Context<'_>, role: Role) -> Result<(), Error> {
     Ok(())
 }
 
+/// Add scores to the CS scoreboard for the winning role
 #[poise::command(slash_command)]
 pub async fn csadd(ctx: Context<'_>, role: Role) -> Result<(), Error> {
     ctx.defer().await?;

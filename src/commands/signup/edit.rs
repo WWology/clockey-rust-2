@@ -3,6 +3,7 @@ use regex::Regex;
 
 use crate::{Context, Error};
 
+/// Edit the signup message
 #[poise::command(slash_command)]
 pub async fn edit(
     ctx: Context<'_>,

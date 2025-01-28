@@ -5,6 +5,7 @@ use poise::{CreateReply, Modal};
 
 use crate::{Context, Error, data::event::EventType};
 
+/// Create a new event for Gardeners to sign up for
 #[poise::command(slash_command)]
 pub async fn event(
     ctx: Context<'_>,
