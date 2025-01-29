@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use sqlx::{Pool, Sqlite, Type, prelude::FromRow};
+use sqlx::{prelude::FromRow, Pool, Sqlite, Type};
 
 use crate::Error;
 
@@ -61,11 +61,24 @@ impl Event {
         db: &Pool<Sqlite>,
         start: i64,
         end: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let dota_rows =
+            sqlx::query_file_as!(Event, "src/data/event/sql/get_dota_events.sql", start, end)
+                .fetch_all(db)
+                .await?;
+
+        Ok(dota_rows)
+    }
+
+    pub async fn get_dota_events_for_id(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
         gardener_id: i64,
     ) -> Result<Vec<Event>, Error> {
         let dota_rows = sqlx::query_file_as!(
             Event,
-            "src/data/event/sql/get_dota_events.sql",
+            "src/data/event/sql/get_dota_events_for_id.sql",
             start,
             end,
             gardener_id
@@ -80,11 +93,23 @@ impl Event {
         db: &Pool<Sqlite>,
         start: i64,
         end: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let cs_rows =
+            sqlx::query_file_as!(Event, "src/data/event/sql/get_cs_events.sql", start, end)
+                .fetch_all(db)
+                .await?;
+        Ok(cs_rows)
+    }
+
+    pub async fn get_cs_events_for_id(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
         gardener_id: i64,
     ) -> Result<Vec<Event>, Error> {
         let cs_rows = sqlx::query_file_as!(
             Event,
-            "src/data/event/sql/get_cs_events.sql",
+            "src/data/event/sql/get_cs_events_for_id.sql",
             start,
             end,
             gardener_id
@@ -98,11 +123,23 @@ impl Event {
         db: &Pool<Sqlite>,
         start: i64,
         end: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let other_rows =
+            sqlx::query_file_as!(Event, "src/data/event/sql/get_other_events.sql", start, end)
+                .fetch_all(db)
+                .await?;
+        Ok(other_rows)
+    }
+
+    pub async fn get_other_events_for_id(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
         gardener_id: i64,
     ) -> Result<Vec<Event>, Error> {
         let other_rows = sqlx::query_file_as!(
             Event,
-            "src/data/event/sql/get_other_events.sql",
+            "src/data/event/sql/get_other_events_for_id.sql",
             start,
             end,
             gardener_id

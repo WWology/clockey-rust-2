@@ -7,4 +7,5 @@ SELECT
 FROM
     events
 WHERE type = 'CS'
-AND time BETWEEN $1 AND $2;
+AND time BETWEEN $1 AND $2
+AND gardeners = $3;

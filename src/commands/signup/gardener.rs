@@ -1,13 +1,15 @@
-use futures::future;
 use std::time::Duration;
 
 use chrono::NaiveDateTime;
-use poise::{CreateReply, serenity_prelude::*};
+use poise::{
+    serenity_prelude::{futures::future, *},
+    CreateReply,
+};
 use regex::Regex;
 
 use crate::{
-    Context, Error,
     data::event::{Event, EventType},
+    Context, Error,
 };
 
 #[poise::command(context_menu_command = "Roll Gardener")]
@@ -131,10 +133,12 @@ async fn gardener_select_menu_builder(
         }
     }
 
-    let gardener_select_menu =
-        CreateSelectMenu::new("gardener_select", CreateSelectMenuKind::String {
+    let gardener_select_menu = CreateSelectMenu::new(
+        "gardener_select",
+        CreateSelectMenuKind::String {
             options: gardener_select_menu_options,
-        });
+        },
+    );
     Ok(gardener_select_menu)
 }
 

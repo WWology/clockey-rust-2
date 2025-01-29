@@ -1,8 +1,8 @@
 #![warn(clippy::pedantic)]
 
 use poise::{
-    FrameworkContext,
     serenity_prelude::{self as serenity, ChunkGuildFilter, EmojiId, ReactionType},
+    FrameworkContext,
 };
 use sqlx::{Pool, Sqlite, SqlitePool};
 
@@ -102,11 +102,12 @@ async fn main() {
                 ping(),
                 next(),
                 // Signup related command
+                signup::edit(),
                 signup::event(),
                 signup::gardener(),
                 signup::invoice(),
                 signup::manual(),
-                signup::edit(),
+                signup::report(),
                 // Prediction related command
                 prediction::csadd(),
                 prediction::csbo(),
