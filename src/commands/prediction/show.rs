@@ -1,13 +1,13 @@
 use poise::{
-    CreateReply,
     serenity_prelude::{self as serenity, CreateEmbedAuthor, Mentionable, UserId},
+    CreateReply,
 };
 use tabled::{
     builder::Builder,
     settings::{Alignment, Style},
 };
 
-use crate::{Context, Error, data};
+use crate::{data, Context, Error};
 
 #[allow(clippy::unused_async)]
 #[poise::command(slash_command, subcommands("dota", "cs"))]
@@ -21,15 +21,19 @@ pub async fn dota(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<
     ctx.defer().await?;
 
     if let Some(member) = member {
-        let score =
-            data::score::get_dota_score_for_id(&ctx.data().db, member.user.id.get()).await?;
-        ctx.reply(format!(
-            "The Dota score prediction for {} is {} ranked at {}",
-            member.mention(),
-            score.score,
-            score.rank
-        ))
-        .await?;
+        if let Ok(score) =
+            data::score::get_dota_score_for_id(&ctx.data().db, member.user.id.get()).await
+        {
+            ctx.reply(format!(
+                "The Dota score prediction for {} is {} ranked at {}",
+                member.mention(),
+                score.score,
+                score.rank
+            ))
+            .await?;
+        } else {
+            ctx.reply("That user isn't found on the scoreboard").await?;
+        }
     } else {
         let scoreboard = data::score::show_dota_scoreboard(&ctx.data().db).await?;
         let total_page = scoreboard.len() / 10 + 1;
@@ -82,14 +86,19 @@ pub async fn cs(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<()
     ctx.defer().await?;
 
     if let Some(member) = member {
-        let score = data::score::get_cs_score_for_id(&ctx.data().db, member.user.id.get()).await?;
-        ctx.reply(format!(
-            "The Dota score prediction for {} is {} ranked at {}",
-            member.mention(),
-            score.score,
-            score.rank
-        ))
-        .await?;
+        if let Ok(score) =
+            data::score::get_cs_score_for_id(&ctx.data().db, member.user.id.get()).await
+        {
+            ctx.reply(format!(
+                "The CS score prediction for {} is {} ranked at {}",
+                member.mention(),
+                score.score,
+                score.rank
+            ))
+            .await?;
+        } else {
+            ctx.reply("That user isn't found on the scoreboard").await?;
+        }
     } else {
         let scoreboard = data::score::show_cs_scoreboard(&ctx.data().db).await?;
         let total_page = scoreboard.len() / 10 + 1;
@@ -168,7 +177,8 @@ pub async fn paginate(
                             "https://liquipedia.net/commons/images/thumb/7/70/OG_RB_allmode.png/1200px-OG_RB_allmode.png"
                         ),
                     )
-                    .field("",format!("```{}```", pages[0].clone()), true),
+                    .field("",format!("```{}```", pages[0].clone()), true)
+                    .field("Can't see yourself?", "Use /show @yourself to see where you stand", false),
             )
             .components(vec![components])
     };
@@ -208,7 +218,9 @@ pub async fn paginate(
                             .author(CreateEmbedAuthor::new("OG").icon_url(
                                 "https://liquipedia.net/commons/images/thumb/7/70/OG_RB_allmode.png/1200px-OG_RB_allmode.png"
                             ))
-                            .field("", format!("```{}```", pages[current_page].clone()), true),
+                            .field("", format!("```{}```", pages[current_page].clone()), true)
+                            .field("Can't see yourself?", "Use /show @yourself to see where you stand", false),
+
                     ),
                 ),
             )
