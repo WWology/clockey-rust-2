@@ -1,12 +1,12 @@
 use chrono::Utc;
 use poise::{
-    Modal,
     serenity_prelude::{CreateScheduledEvent, ScheduledEventType, Timestamp},
+    Modal,
 };
 
 use crate::{
-    Context, Error,
     data::event::{Event, EventType},
+    Context, Error,
 };
 
 /// Manually add signups to an event
@@ -27,57 +27,24 @@ pub async fn manual(
         }
     };
     let (name, event_type, scheduled_type, channel_id) = match event_choice {
-        EventChoice::Dota => {
-            if cfg!(debug_assertions) {
-                (
-                    format!("Dota - {}", &data.name),
-                    EventType::Dota,
-                    ScheduledEventType::Voice,
-                    738_607_620_566_286_398,
-                )
-            } else {
-                (
-                    format!("Dota - {}", &data.name),
-                    EventType::Dota,
-                    ScheduledEventType::Voice,
-                    super::DOTA_CHANNEL_ID,
-                )
-            }
-        }
-        EventChoice::CS => {
-            if cfg!(debug_assertions) {
-                (
-                    format!("CS - {}", &data.name),
-                    EventType::CS,
-                    ScheduledEventType::Voice,
-                    738_607_620_566_286_398,
-                )
-            } else {
-                (
-                    format!("CS - {}", &data.name),
-                    EventType::CS,
-                    ScheduledEventType::Voice,
-                    super::CS_CHANNEL_ID,
-                )
-            }
-        }
-        EventChoice::Other => {
-            if cfg!(debug_assertions) {
-                (
-                    format!("Other - {}", &data.name),
-                    EventType::Other,
-                    ScheduledEventType::StageInstance,
-                    991_620_472_544_440_454,
-                )
-            } else {
-                (
-                    format!("Other - {}", &data.name),
-                    EventType::Other,
-                    ScheduledEventType::StageInstance,
-                    super::OG_STAGE_CHANNEL_ID,
-                )
-            }
-        }
+        EventChoice::Dota => (
+            format!("Dota - {}", &data.name),
+            EventType::Dota,
+            ScheduledEventType::Voice,
+            ctx.data().config.dota_channel,
+        ),
+        EventChoice::CS => (
+            format!("CS - {}", &data.name),
+            EventType::CS,
+            ScheduledEventType::Voice,
+            ctx.data().config.cs_channel,
+        ),
+        EventChoice::Other => (
+            format!("Other - {}", &data.name),
+            EventType::Other,
+            ScheduledEventType::StageInstance,
+            ctx.data().config.stage_channel,
+        ),
     };
 
     Event::new(
@@ -109,7 +76,8 @@ pub async fn manual(
         .await?
         .into_message()
         .await?;
-    msg.react(&ctx, ctx.data().processed_emoji.clone()).await?;
+    msg.react(&ctx, ctx.data().config.processed_emoji.clone())
+        .await?;
 
     Ok(())
 }

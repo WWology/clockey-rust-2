@@ -12,9 +12,17 @@ use commands::{next, ping, prediction, signup};
 
 pub struct Data {
     db: Pool<Sqlite>,
+    config: Config,
+}
+
+pub struct Config {
     signup_emoji: ReactionType,
     processed_emoji: ReactionType,
+    dota_channel: u64,
+    cs_channel: u64,
+    stage_channel: u64,
 }
+
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::ApplicationContext<'a, Data, Error>;
 
@@ -66,32 +74,7 @@ async fn main() {
         .await
         .expect("Unable to connect to Database");
 
-    let signup_emoji = if cfg!(debug_assertions) {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(951_843_834_554_376_262),
-            name: Some(String::from("ruggahPain")),
-        }
-    } else {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(730_890_894_814_740_541),
-            name: Some(String::from("OGpeepoYes")),
-        }
-    };
-    let processed_emoji = if cfg!(debug_assertions) {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(1_329_032_244_580_323_349),
-            name: Some(String::from("khezuBrain")),
-        }
-    } else {
-        ReactionType::Custom {
-            animated: false,
-            id: EmojiId::new(787_697_278_190_223_370),
-            name: Some(String::from("OGwecoo")),
-        }
-    };
+    let config = init_config();
 
     tracing_subscriber::fmt::init();
 
@@ -143,11 +126,7 @@ async fn main() {
             Box::pin(async move {
                 println!("Logged in as {}", ready.user.name);
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-                Ok(Data {
-                    db,
-                    signup_emoji,
-                    processed_emoji,
-                })
+                Ok(Data { db, config })
             })
         })
         .build();
@@ -161,4 +140,58 @@ async fn main() {
         .start()
         .await
         .expect("Unable to start client");
+}
+
+fn init_config() -> Config {
+    // Emojis initialisation
+    let signup_emoji = if cfg!(debug_assertions) {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(951_843_834_554_376_262),
+            name: Some(String::from("ruggahPain")),
+        }
+    } else {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(730_890_894_814_740_541),
+            name: Some(String::from("OGpeepoYes")),
+        }
+    };
+    let processed_emoji = if cfg!(debug_assertions) {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(1_329_032_244_580_323_349),
+            name: Some(String::from("khezuBrain")),
+        }
+    } else {
+        ReactionType::Custom {
+            animated: false,
+            id: EmojiId::new(787_697_278_190_223_370),
+            name: Some(String::from("OGwecoo")),
+        }
+    };
+
+    // Channels initialisation
+    let dota_channel = if cfg!(debug_assertions) {
+        738_607_620_566_286_398
+    } else {
+        738_009_797_932_351_519
+    };
+    let cs_channel = if cfg!(debug_assertions) {
+        738_607_620_566_286_398
+    } else {
+        746_618_267_434_614_804
+    };
+    let stage_channel = if cfg!(debug_assertions) {
+        991_620_472_544_440_454
+    } else {
+        1_186_593_338_300_842_025
+    };
+    Config {
+        signup_emoji,
+        processed_emoji,
+        dota_channel,
+        cs_channel,
+        stage_channel,
+    }
 }

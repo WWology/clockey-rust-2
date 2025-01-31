@@ -51,7 +51,7 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
         .await?;
 
     future::try_join3(
-        message.react(&ctx, ctx.data().processed_emoji.clone()),
+        message.react(&ctx, ctx.data().config.processed_emoji.clone()),
         ctx.interaction.edit_response(
             &ctx,
             EditInteractionResponse::new()
@@ -81,7 +81,12 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
 
 async fn message_processed(ctx: &Context<'_>, msg: &Message) -> Result<bool, Error> {
     let processed_reactions = msg
-        .reaction_users(ctx, ctx.data().processed_emoji.clone(), Some(1), None)
+        .reaction_users(
+            ctx,
+            ctx.data().config.processed_emoji.clone(),
+            Some(1),
+            None,
+        )
         .await?;
 
     if processed_reactions.is_empty() {
@@ -98,7 +103,7 @@ async fn gardener_select_menu_builder(
     let clockey_id = ctx.interaction.application_id.get();
 
     let gardeners_reacted = msg
-        .reaction_users(ctx, ctx.data().signup_emoji.clone(), Some(6), None)
+        .reaction_users(ctx, ctx.data().config.signup_emoji.clone(), Some(6), None)
         .await?;
 
     let ids: Vec<u64> = gardeners_reacted

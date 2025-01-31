@@ -3,7 +3,7 @@ use poise::serenity_prelude::{
 };
 use poise::{CreateReply, Modal};
 
-use crate::{Context, Error, data::event::EventType};
+use crate::{data::event::EventType, Context, Error};
 
 /// Create a new event for Gardeners to sign up for
 #[poise::command(slash_command)]
@@ -29,11 +29,7 @@ pub async fn event(
             time = data.time;
             hours = get_hours(data.series_length.as_str())?;
             series_length = Some(data.series_length);
-            channel_id = if cfg!(debug_assertions) {
-                738_607_620_566_286_398
-            } else {
-                super::DOTA_CHANNEL_ID
-            };
+            channel_id = ctx.data().config.dota_channel;
             scheduled_type = ScheduledEventType::Voice;
         }
         EventType::CS => {
@@ -42,11 +38,7 @@ pub async fn event(
             time = data.time;
             hours = get_hours(data.series_length.as_str())?;
             series_length = Some(data.series_length);
-            channel_id = if cfg!(debug_assertions) {
-                738_607_620_566_286_398
-            } else {
-                super::CS_CHANNEL_ID
-            };
+            channel_id = ctx.data().config.cs_channel;
             scheduled_type = ScheduledEventType::Voice;
         }
         EventType::Other => {
@@ -55,11 +47,7 @@ pub async fn event(
             time = data.time;
             hours = data.hours.parse::<u8>()?;
             series_length = None;
-            channel_id = if cfg!(debug_assertions) {
-                991_620_472_544_440_454
-            } else {
-                super::OG_STAGE_CHANNEL_ID
-            };
+            channel_id = ctx.data().config.stage_channel;
             scheduled_type = ScheduledEventType::StageInstance;
         }
     }
@@ -110,7 +98,8 @@ pub async fn event(
         ctx.send(reply).await?.into_message().await?
     };
 
-    msg.react(&ctx, ctx.data().signup_emoji.clone()).await?;
+    msg.react(&ctx, ctx.data().config.signup_emoji.clone())
+        .await?;
     Ok(())
 }
 
