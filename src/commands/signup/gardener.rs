@@ -51,7 +51,7 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
         .await?;
 
     future::try_join3(
-        message.react(&ctx, ctx.data().config.processed_emoji.clone()),
+        msg.react(&ctx, ctx.data().config.processed_emoji.clone()),
         ctx.interaction.edit_response(
             &ctx,
             EditInteractionResponse::new()
