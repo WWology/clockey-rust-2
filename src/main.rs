@@ -34,7 +34,7 @@ async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
         }
         error => {
             if let Err(e) = poise::builtins::on_error(error).await {
-                println!("Error while handling error: {e}");
+                println!("Error while handling error: {e:?}");
             }
         }
     }
@@ -76,7 +76,10 @@ async fn main() {
 
     let config = init_config();
 
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_target(true)
+        .with_line_number(true)
+        .init();
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
