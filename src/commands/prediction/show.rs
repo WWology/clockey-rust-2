@@ -32,7 +32,11 @@ pub async fn dota(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<
             ))
             .await?;
         } else {
-            ctx.reply("That user isn't found on the scoreboard").await?;
+            ctx.reply(format!(
+                "{} isn't found on the scoreboard",
+                member.mention()
+            ))
+            .await?;
         }
     } else {
         let scoreboard = data::score::show_dota_scoreboard(&ctx.data().db).await?;
@@ -97,7 +101,11 @@ pub async fn cs(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<()
             ))
             .await?;
         } else {
-            ctx.reply("That user isn't found on the scoreboard").await?;
+            ctx.reply(format!(
+                "{} isn't found on the scoreboard",
+                member.mention()
+            ))
+            .await?;
         }
     } else {
         let scoreboard = data::score::show_cs_scoreboard(&ctx.data().db).await?;
