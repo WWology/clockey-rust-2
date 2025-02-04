@@ -1,8 +1,6 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use poise::{
-    serenity_prelude::{
-        self as serenity, futures::future, CreateEmbed, CreateEmbedAuthor, Timestamp,
-    },
+    serenity_prelude::{futures::future, CreateEmbed, CreateEmbedAuthor, Member, Timestamp},
     CreateReply,
 };
 
@@ -15,7 +13,7 @@ pub async fn report(
     #[description = "End date of the invoice, please use YYYY-MM-DD format"] end_date: Option<
         String,
     >,
-    #[description = "Gardener to get a report from"] gardener: Option<serenity::Member>,
+    #[description = "Gardener to get a report from"] gardener: Option<Member>,
 ) -> Result<(), Error> {
     ctx.defer_ephemeral().await?;
 
@@ -54,7 +52,7 @@ async fn generate_report_for_gardener(
     ctx: &Context<'_>,
     start: NaiveDateTime,
     end: NaiveDateTime,
-    gardener: serenity::Member,
+    gardener: Member,
 ) -> Result<CreateEmbed, Error> {
     let (dota_invoice, cs_invoice, other_invoice) = future::try_join3(
         Event::get_dota_events_for_id(

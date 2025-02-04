@@ -1,5 +1,5 @@
 use poise::{
-    serenity_prelude::{self as serenity, CreateEmbedAuthor, Mentionable, UserId},
+    serenity_prelude::{self as serenity, CreateEmbedAuthor, Member, Mentionable, UserId},
     CreateReply,
 };
 use tabled::{
@@ -17,7 +17,7 @@ pub async fn show(_: Context<'_>) -> Result<(), Error> {
 
 /// Show dota scoreboard or user score and rank
 #[poise::command(slash_command)]
-pub async fn dota(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<(), Error> {
+pub async fn dota(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
     ctx.defer().await?;
 
     if let Some(member) = member {
@@ -86,7 +86,7 @@ pub async fn dota(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<
 
 /// Show cs scoreboard or user score and rank
 #[poise::command(slash_command)]
-pub async fn cs(ctx: Context<'_>, member: Option<serenity::Member>) -> Result<(), Error> {
+pub async fn cs(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
     ctx.defer().await?;
 
     if let Some(member) = member {
