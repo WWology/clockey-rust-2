@@ -148,4 +148,15 @@ impl Event {
         .await?;
         Ok(other_rows)
     }
+
+    pub fn gardener_name(&self) -> String {
+        match self.gardeners {
+            293_360_731_867_316_225 => String::from("Nik"),
+            204_923_365_205_475_329 => String::from("Kit"),
+            754_724_309_276_164_159 => String::from("WW"),
+            172_360_818_715_918_337 => String::from("Bonteng"),
+            332_438_787_588_227_072 => String::from("Sam"),
+            _ => panic!("Something unexpected has happened"),
+        }
+    }
 }
