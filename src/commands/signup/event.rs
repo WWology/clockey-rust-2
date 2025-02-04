@@ -88,9 +88,12 @@ pub async fn event(
         .await?;
 
     let msg = if ping {
-        ctx.say(reply_text).await?.into_message().await?
+        let reply = CreateReply::new()
+            .content(reply_text)
+            .allowed_mentions(CreateAllowedMentions::new().all_roles(true).all_users(true));
+        ctx.send(reply).await?.into_message().await?
     } else {
-        let reply = CreateReply::default().content(reply_text).allowed_mentions(
+        let reply = CreateReply::new().content(reply_text).allowed_mentions(
             CreateAllowedMentions::new()
                 .all_roles(false)
                 .all_users(false),
