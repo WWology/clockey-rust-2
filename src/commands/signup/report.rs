@@ -160,10 +160,11 @@ async fn generate_report(
     for event in dota_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         dota_events += format!(
-            "{} at {} - {} hours\n",
+            "{} at {} - {} hours by {}\n",
             event.name,
             time.format("%e %b, %Y"),
-            event.hours
+            event.hours,
+            event.gardener_name(),
         )
         .as_str();
         total_hours += event.hours;
@@ -172,10 +173,11 @@ async fn generate_report(
     for event in cs_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         cs_events += &format!(
-            "{} at {} - {} hours\n",
+            "{} at {} - {} hours by {}\n",
             event.name,
             time.format("%e %b, %Y"),
-            event.hours
+            event.hours,
+            event.gardener_name()
         );
         total_hours += event.hours;
     }
@@ -183,10 +185,11 @@ async fn generate_report(
     for event in other_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         other_events += &format!(
-            "{} at {} - {} hours\n",
+            "{} at {} - {} hours by {}\n",
             event.name,
             time.format("%e %b, %Y"),
-            event.hours
+            event.hours,
+            event.gardener_name()
         );
         total_hours += event.hours;
     }
