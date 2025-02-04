@@ -7,16 +7,15 @@ use crate::{data::score, Context, Error};
 pub async fn dotaadd(ctx: Context<'_>, role: Role) -> Result<(), Error> {
     ctx.defer().await?;
 
-    let winners: Vec<u64>;
-    {
+    let winners: Vec<u64> = {
         let guild_members = &ctx.guild().ok_or("Failed to find guild")?.members;
 
-        winners = guild_members
+        guild_members
             .iter()
             .filter(|member| member.1.roles.contains(&role.id))
             .map(|member| member.0.get())
-            .collect();
-    }
+            .collect()
+    };
 
     let winners_count = winners.len();
     for id in winners {
