@@ -1,7 +1,9 @@
 #![warn(clippy::pedantic)]
 
 use poise::{
-    serenity_prelude::{self as serenity, ChunkGuildFilter, EmojiId, ReactionType},
+    serenity_prelude::{
+        ChunkGuildFilter, ClientBuilder, EmojiId, FullEvent, GatewayIntents, ReactionType, RoleId,
+    },
     FrameworkContext,
 };
 use sqlx::{Pool, Sqlite, SqlitePool};
@@ -21,6 +23,8 @@ pub struct Config {
     dota_channel: u64,
     cs_channel: u64,
     stage_channel: u64,
+    dota_oracle_role: RoleId,
+    cs2_awpacle_role: RoleId,
 }
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -43,17 +47,17 @@ async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
 #[allow(clippy::unused_async)]
 async fn event_handler(
     framework: FrameworkContext<'_, Data, Error>,
-    event: &serenity::FullEvent,
+    event: &FullEvent,
 ) -> Result<(), Error> {
     let ctx = framework.serenity_context;
     match event {
-        serenity::FullEvent::CacheReady { guilds } => {
+        FullEvent::CacheReady { guilds } => {
             for guild_id in guilds {
                 ctx.shard
                     .chunk_guild(*guild_id, None, true, ChunkGuildFilter::None, None);
             }
         }
-        serenity::FullEvent::GuildMembersChunk { chunk } => {
+        FullEvent::GuildMembersChunk { chunk } => {
             println!(
                 "Chunked guild {} with member count {}",
                 chunk.guild_id, chunk.chunk_count
@@ -68,7 +72,7 @@ async fn event_handler(
 #[tokio::main]
 async fn main() {
     let token = env!("DISCORD_TOKEN");
-    let intents = serenity::GatewayIntents::all();
+    let intents = GatewayIntents::all();
 
     let db = SqlitePool::connect(env!("DATABASE_URL"))
         .await
@@ -102,6 +106,7 @@ async fn main() {
                 prediction::dotaadd(),
                 prediction::dotabo(),
                 prediction::show(),
+                prediction::winners(),
             ],
             on_error: |error| Box::pin(on_error(error)),
             event_handler: |framework, event| Box::pin(event_handler(framework, event)),
@@ -134,7 +139,7 @@ async fn main() {
         })
         .build();
 
-    let client = serenity::ClientBuilder::new(token, intents)
+    let client = ClientBuilder::new(token, intents)
         .framework(framework)
         .await;
 
@@ -190,11 +195,17 @@ fn init_config() -> Config {
     } else {
         1_186_593_338_300_842_025
     };
+
+    // Prediction winners role
+    let dota_oracle_role = RoleId::new(729_106_634_437_296_148);
+    let cs2_awpacle_role = RoleId::new(729_106_753_085_636_688);
     Config {
         signup_emoji,
         processed_emoji,
         dota_channel,
         cs_channel,
         stage_channel,
+        dota_oracle_role,
+        cs2_awpacle_role,
     }
 }

@@ -1,4 +1,4 @@
-use sqlx::{Pool, Sqlite, prelude::FromRow};
+use sqlx::{prelude::FromRow, Pool, Sqlite};
 
 use crate::Error;
 
@@ -8,6 +8,21 @@ pub struct Score {
     pub rank: i64,
     pub id: i64,
     pub score: i64,
+}
+
+pub async fn get_dota_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
+    let id = i64::try_from(id)?;
+    let row = sqlx::query_file_as!(Score, "src/data/score/sql/get_dota_score_for_id.sql", id)
+        .fetch_one(db)
+        .await?;
+    Ok(row)
+}
+
+pub async fn get_dota_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
+    let rows = sqlx::query_file_as!(Score, "src/data/score/sql/get_dota_winners.sql")
+        .fetch_all(db)
+        .await?;
+    Ok(rows)
 }
 
 pub async fn show_dota_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
@@ -26,12 +41,19 @@ pub async fn update_dota_scoreboard(db: &Pool<Sqlite>, id: u64) -> Result<(), Er
     Ok(())
 }
 
-pub async fn get_dota_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
+pub async fn get_cs_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
     let id = i64::try_from(id)?;
-    let row = sqlx::query_file_as!(Score, "src/data/score/sql/get_dota_score_for_id.sql", id)
+    let row = sqlx::query_file_as!(Score, "src/data/score/sql/get_cs_score_for_id.sql", id)
         .fetch_one(db)
         .await?;
     Ok(row)
+}
+
+pub async fn get_cs_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
+    let rows = sqlx::query_file_as!(Score, "src/data/score/sql/get_cs_winners.sql")
+        .fetch_all(db)
+        .await?;
+    Ok(rows)
 }
 
 pub async fn show_cs_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
@@ -47,12 +69,4 @@ pub async fn update_cs_scoreboard(db: &Pool<Sqlite>, id: u64) -> Result<(), Erro
         .execute(db)
         .await?;
     Ok(())
-}
-
-pub async fn get_cs_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
-    let id = i64::try_from(id)?;
-    let row = sqlx::query_file_as!(Score, "src/data/score/sql/get_cs_score_for_id.sql", id)
-        .fetch_one(db)
-        .await?;
-    Ok(row)
 }
