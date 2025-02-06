@@ -34,10 +34,13 @@ pub async fn dota(ctx: Context<'_>) -> Result<(), Error> {
     let winners = score::get_dota_winners(&ctx.data().db).await?;
 
     for winner in winners {
-        guild_id
-            .member(&ctx, UserId::new(u64::try_from(winner.id)?))
-            .await?
-            .add_role(&ctx, &ctx.data().config.dota_oracle_role)
+        ctx.http()
+            .add_member_role(
+                guild_id,
+                UserId::new(u64::try_from(winner.id)?),
+                ctx.data().config.dota_oracle_role,
+                None,
+            )
             .await?;
     }
     Ok(())
@@ -69,10 +72,13 @@ pub async fn cs(ctx: Context<'_>) -> Result<(), Error> {
     let winners = score::get_cs_winners(&ctx.data().db).await?;
 
     for winner in winners {
-        guild_id
-            .member(&ctx, UserId::new(u64::try_from(winner.id)?))
-            .await?
-            .add_role(&ctx, &ctx.data().config.cs2_awpacle_role)
+        ctx.http()
+            .add_member_role(
+                guild_id,
+                UserId::new(u64::try_from(winner.id)?),
+                ctx.data().config.cs2_awpacle_role,
+                None,
+            )
             .await?;
     }
     Ok(())

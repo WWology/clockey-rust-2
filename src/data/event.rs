@@ -42,6 +42,10 @@ impl Event {
         }
     }
 
+    pub async fn Delete(db: &Pool<Sqlite>) -> Result<(), Error> {
+        Ok(())
+    }
+
     pub async fn insert(&self, db: &Pool<Sqlite>) -> Result<(), Error> {
         sqlx::query_file_as!(
             Event,
