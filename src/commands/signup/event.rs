@@ -22,6 +22,8 @@ pub async fn event(
     let scheduled_type: ScheduledEventType;
     let ping = ping.unwrap_or(true);
 
+    // Execute Game Modal for Dota and CS Events
+    // Execute Event Modal for Other Events
     match event_type {
         EventType::Dota => {
             let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
@@ -52,6 +54,7 @@ pub async fn event(
         }
     }
 
+    // Reply text contains series length if it's a game event
     if let EventType::Other = event_type {
         reply_text = format!(
             "Hey <@&720253636797530203>\
@@ -72,6 +75,7 @@ pub async fn event(
         );
     }
 
+    // Try to parse time passed from modal to a unix timestamp
     let start_time = match time.parse::<i64>() {
         Ok(unix) => Timestamp::from_unix_timestamp(unix)?,
         Err(error) => {
@@ -79,14 +83,16 @@ pub async fn event(
         }
     };
 
+    // Create Discord Scheduled Event
     ctx.guild_id()
-        .ok_or("error getting guild id")?
+        .ok_or("Failed to find guild")?
         .create_scheduled_event(
             &ctx,
             CreateScheduledEvent::new(scheduled_type, name, start_time).channel_id(channel_id),
         )
         .await?;
 
+    // Ping Gardeners or not depending on ping flag
     let msg = if ping {
         let reply = CreateReply::new()
             .content(reply_text)
@@ -101,6 +107,7 @@ pub async fn event(
         ctx.send(reply).await?.into_message().await?
     };
 
+    // React to the message with the signup emoji
     msg.react(&ctx, ctx.data().config.signup_emoji.clone())
         .await?;
     Ok(())

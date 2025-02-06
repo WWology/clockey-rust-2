@@ -25,6 +25,8 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
     }
 
     let gardener_select_menu = gardener_select_menu_builder(&ctx, &msg).await?;
+
+    // Send a message with the gardener select menu based on gardener who reacted (signed up)
     let message = ctx
         .send(
             CreateReply::default()
@@ -79,6 +81,7 @@ pub async fn gardener(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
     Ok(())
 }
 
+/// Check if the message has been processed if signup emoji is present
 async fn message_processed(ctx: &Context<'_>, msg: &Message) -> Result<bool, Error> {
     let processed_reactions = msg
         .reaction_users(
