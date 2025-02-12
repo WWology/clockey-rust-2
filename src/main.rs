@@ -105,6 +105,8 @@ async fn main() {
                 prediction::deletedota(),
                 prediction::dotaadd(),
                 prediction::dotabo(),
+                prediction::deleteextra(),
+                prediction::extrabo(),
                 prediction::show(),
                 prediction::winners(),
             ],

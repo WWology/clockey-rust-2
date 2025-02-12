@@ -106,6 +106,58 @@ pub async fn csbo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
     Ok(())
 }
 
+/// Create extra roles for predictions
+#[poise::command(slash_command)]
+pub async fn extrabo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    let guild = ctx.guild_id().ok_or("Failed to find guild")?;
+
+    match series_length {
+        1 => {
+            let roles_to_be_created = ["EX1-0", "EX0-1"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for an extra Bo1").await?;
+        }
+        2 => {
+            let roles_to_be_created = ["EX2-0", "EX1-1", "EX0-2"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for an extra Bo2").await?;
+        }
+        3 => {
+            let roles_to_be_created = ["EX2-0", "EX2-1", "EX1-2", "EX0-2"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for an extra Bo3").await?;
+        }
+        5 => {
+            let roles_to_be_created = ["EX3-0", "EX3-1", "EX3-2", "EX2-3", "EX1-3", "EX0-3"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for an extra Bo5").await?;
+        }
+        _ => {
+            ctx.reply("Invalid series length").await?;
+        }
+    }
+
+    Ok(())
+}
+
 /// Delete created Dota roles for prediction
 #[poise::command(slash_command)]
 pub async fn deletedota(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
@@ -227,6 +279,71 @@ pub async fn deletecs(ctx: Context<'_>, series_length: u8) -> Result<(), Error> 
                 }
             }
             ctx.reply("Deleted roles for CS Bo5").await?;
+        }
+        _ => {
+            ctx.reply("Invalid series length").await?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Delete created extra roles for prediction
+#[poise::command(slash_command)]
+pub async fn deleteextra(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    let guild = ctx.guild_id().ok_or("Failed to find guild")?;
+    let role_list = guild.roles(&ctx).await?;
+
+    match series_length {
+        1 => {
+            let roles_to_be_deleted = ["EX1-0", "EX0-1"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for extra Bo1").await?;
+        }
+        2 => {
+            let roles_to_be_deleted = ["EX2-0", "EX1-1", "EX0-1"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for extra Bo2").await?;
+        }
+        3 => {
+            let roles_to_be_deleted = ["EX2-0", "EX2-1", "EX1-2", "EX0-2"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for extra Bo3").await?;
+        }
+        5 => {
+            let roles_to_be_deleted = ["EX3-0", "EX3-1", "EX3-2", "EX2-3", "EX1-3", "EX0-3"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for extra Bo5").await?;
         }
         _ => {
             ctx.reply("Invalid series length").await?;
