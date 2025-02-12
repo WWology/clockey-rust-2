@@ -155,7 +155,7 @@ pub async fn cs(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
 
 fn truncate(name: &str) -> String {
     if name.len() > 12 {
-        return format!("{}...", &name[0..9]);
+        return format!("{}...", name.chars().take(9).collect::<String>());
     }
     name.to_string()
 }
