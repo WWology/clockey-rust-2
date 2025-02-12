@@ -1,4 +1,4 @@
-// mod cancel;
+mod cancel;
 mod edit;
 mod event;
 mod gardener;
@@ -6,6 +6,7 @@ mod invoice;
 mod manual;
 mod report;
 
+pub use cancel::cancel;
 pub use edit::edit;
 pub use event::event;
 pub use gardener::gardener;

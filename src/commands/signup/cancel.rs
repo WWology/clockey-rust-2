@@ -8,7 +8,7 @@ use poise::{
 };
 use regex::Regex;
 
-use crate::{data, Context, Error};
+use crate::{data::event::Event, Context, Error};
 
 #[poise::command(context_menu_command = "Cancel Event")]
 pub async fn cancel(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
@@ -23,8 +23,12 @@ pub async fn cancel(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
     }
 
     let buttons = CreateActionRow::Buttons(vec![
-        CreateButton::new("cancel_event_yes").style(ButtonStyle::Danger),
-        CreateButton::new("cancel_event_no").style(ButtonStyle::Secondary),
+        CreateButton::new("cancel_event_yes")
+            .label("Yes")
+            .style(ButtonStyle::Danger),
+        CreateButton::new("cancel_event_no")
+            .label("No")
+            .style(ButtonStyle::Secondary),
     ]);
 
     let reply = ctx
@@ -37,7 +41,15 @@ pub async fn cancel(ctx: Context<'_>, msg: Message) -> Result<(), Error> {
 
     if get_confirmation(&ctx).await? {
         let (name, time) = get_event_name_and_time(msg.content.as_str())?;
-        // data::event::Event::delete().await?;
+        Event::delete(&ctx.data().db, name.as_str(), time).await?;
+        reply
+            .edit(
+                poise::Context::from(ctx),
+                CreateReply::new()
+                    .content("Event cancelled")
+                    .components(vec![]),
+            )
+            .await?;
     } else {
         reply
             .edit(
@@ -94,7 +106,7 @@ async fn get_confirmation(ctx: &Context<'_>) -> Result<bool, Error> {
         .timeout(std::time::Duration::from_secs(30))
         .await
     {
-        if press.data.custom_id == "cancel_event_yet" {
+        if press.data.custom_id == "cancel_event_yes" {
             return Ok(true);
         } else if press.data.custom_id == "cancel_event_no" {
             return Ok(false);

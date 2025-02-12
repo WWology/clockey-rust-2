@@ -92,6 +92,7 @@ async fn main() {
                 ping(),
                 next(),
                 // Signup related command
+                signup::cancel(),
                 signup::edit(),
                 signup::event(),
                 signup::gardener(),
