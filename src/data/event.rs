@@ -42,7 +42,10 @@ impl Event {
         }
     }
 
-    pub async fn Delete(db: &Pool<Sqlite>) -> Result<(), Error> {
+    pub async fn delete(db: &Pool<Sqlite>, name: &str, time: i64) -> Result<(), Error> {
+        sqlx::query_file!("src/data/event/sql/delete_event.sql", name, time)
+            .execute(db)
+            .await?;
         Ok(())
     }
 
