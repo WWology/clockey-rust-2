@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO\n    cs_scoreboard (id, score)\nVALUES\n    ($1, 1) ON CONFLICT (id) DO\nUPDATE\nSET\n    score = score + 1;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "39e8ee4f7b4f5860eea6d99cb3dec293eb148521e94d16f722dba21f5fcf3afe"
+}

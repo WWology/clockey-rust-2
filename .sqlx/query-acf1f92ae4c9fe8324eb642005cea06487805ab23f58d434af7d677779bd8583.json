@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM events\nWHERE name = $1 AND time = $2;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "acf1f92ae4c9fe8324eb642005cea06487805ab23f58d434af7d677779bd8583"
+}

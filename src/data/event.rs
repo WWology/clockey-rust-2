@@ -12,6 +12,9 @@ pub enum EventType {
     #[name = "CS"]
     CS,
 
+    #[name = "Rivals"]
+    Rivals,
+
     #[name = "Other"]
     Other,
 }
@@ -64,15 +67,20 @@ impl Event {
         Ok(())
     }
 
+    // Dota
     pub async fn get_dota_events(
         db: &Pool<Sqlite>,
         start: i64,
         end: i64,
     ) -> Result<Vec<Event>, Error> {
-        let dota_rows =
-            sqlx::query_file_as!(Event, "src/data/event/sql/get_dota_events.sql", start, end)
-                .fetch_all(db)
-                .await?;
+        let dota_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/dota/get_dota_events.sql",
+            start,
+            end
+        )
+        .fetch_all(db)
+        .await?;
 
         Ok(dota_rows)
     }
@@ -85,7 +93,7 @@ impl Event {
     ) -> Result<Vec<Event>, Error> {
         let dota_rows = sqlx::query_file_as!(
             Event,
-            "src/data/event/sql/get_dota_events_for_id.sql",
+            "src/data/event/sql/dota/get_dota_events_for_id.sql",
             start,
             end,
             gardener_id
@@ -96,13 +104,14 @@ impl Event {
         Ok(dota_rows)
     }
 
+    // CS
     pub async fn get_cs_events(
         db: &Pool<Sqlite>,
         start: i64,
         end: i64,
     ) -> Result<Vec<Event>, Error> {
         let cs_rows =
-            sqlx::query_file_as!(Event, "src/data/event/sql/get_cs_events.sql", start, end)
+            sqlx::query_file_as!(Event, "src/data/event/sql/cs/get_cs_events.sql", start, end)
                 .fetch_all(db)
                 .await?;
         Ok(cs_rows)
@@ -116,7 +125,7 @@ impl Event {
     ) -> Result<Vec<Event>, Error> {
         let cs_rows = sqlx::query_file_as!(
             Event,
-            "src/data/event/sql/get_cs_events_for_id.sql",
+            "src/data/event/sql/cs/get_cs_events_for_id.sql",
             start,
             end,
             gardener_id
@@ -126,15 +135,55 @@ impl Event {
         Ok(cs_rows)
     }
 
+    // Rivals
+    pub async fn get_rivals_events(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let rivals_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/rivals/get_rivals_events.sql",
+            start,
+            end
+        )
+        .fetch_all(db)
+        .await?;
+        Ok(rivals_rows)
+    }
+
+    pub async fn get_rivals_events_for_id(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
+        gardener_id: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let rivals_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/rivals/get_rivals_events_for_id.sql",
+            start,
+            end,
+            gardener_id
+        )
+        .fetch_all(db)
+        .await?;
+        Ok(rivals_rows)
+    }
+
+    // Others
     pub async fn get_other_events(
         db: &Pool<Sqlite>,
         start: i64,
         end: i64,
     ) -> Result<Vec<Event>, Error> {
-        let other_rows =
-            sqlx::query_file_as!(Event, "src/data/event/sql/get_other_events.sql", start, end)
-                .fetch_all(db)
-                .await?;
+        let other_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/other/get_other_events.sql",
+            start,
+            end
+        )
+        .fetch_all(db)
+        .await?;
         Ok(other_rows)
     }
 
@@ -146,7 +195,7 @@ impl Event {
     ) -> Result<Vec<Event>, Error> {
         let other_rows = sqlx::query_file_as!(
             Event,
-            "src/data/event/sql/get_other_events_for_id.sql",
+            "src/data/event/sql/other/get_other_events_for_id.sql",
             start,
             end,
             gardener_id

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO\n    dota_scoreboard (id, score)\nVALUES\n    ($1, 1) ON CONFLICT (id) DO\nUPDATE\nSET\n    score = score + 1;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "835cd825ed8748afc341c8f21601aa6f596467777fa3521e1e17abd2a6cee401"
+}

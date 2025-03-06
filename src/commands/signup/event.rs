@@ -43,6 +43,15 @@ pub async fn event(
             channel_id = ctx.data().config.cs_channel;
             scheduled_type = ScheduledEventType::Voice;
         }
+        EventType::Rivals => {
+            let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
+            name = format!("Rivals - {}", data.name);
+            time = data.time;
+            hours = get_hours(data.series_length.as_str())?;
+            series_length = Some(data.series_length);
+            channel_id = ctx.data().config.cs_channel;
+            scheduled_type = ScheduledEventType::Voice;
+        }
         EventType::Other => {
             let data = EventModal::execute(ctx).await?.ok_or("No data provided")?;
             name = format!("Other - {}", data.name);

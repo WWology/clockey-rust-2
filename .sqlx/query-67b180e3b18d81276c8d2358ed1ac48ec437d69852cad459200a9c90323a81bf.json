@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT\n    name,\n    time,\n    type AS 'event_type: EventType',\n    gardeners,\n    hours\nFROM\n    events\nWHERE type = 'Other'\nAND time BETWEEN $1 AND $2;\n",
+  "describe": {
+    "columns": [
+      {
+        "name": "name",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "time",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "event_type: EventType",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "gardeners",
+        "ordinal": 3,
+        "type_info": "Integer"
+      },
+      {
+        "name": "hours",
+        "ordinal": 4,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "67b180e3b18d81276c8d2358ed1ac48ec437d69852cad459200a9c90323a81bf"
+}

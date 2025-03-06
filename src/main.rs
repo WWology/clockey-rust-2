@@ -25,6 +25,7 @@ pub struct Config {
     stage_channel: u64,
     dota_oracle_role: RoleId,
     cs2_awpacle_role: RoleId,
+    rivals_avengers_role: RoleId,
 }
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -202,6 +203,7 @@ fn init_config() -> Config {
     // Prediction winners role
     let dota_oracle_role = RoleId::new(729_106_634_437_296_148);
     let cs2_awpacle_role = RoleId::new(729_106_753_085_636_688);
+    let rivals_avengers_role = RoleId::new(1_347_178_660_192_583_731);
     Config {
         signup_emoji,
         processed_emoji,
@@ -210,5 +212,6 @@ fn init_config() -> Config {
         stage_channel,
         dota_oracle_role,
         cs2_awpacle_role,
+        rivals_avengers_role,
     }
 }

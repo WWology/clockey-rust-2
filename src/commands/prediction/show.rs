@@ -153,6 +153,74 @@ pub async fn cs(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
     Ok(())
 }
 
+/// Show rivals scoreboard or user score and rank
+#[poise::command(slash_command)]
+pub async fn rivals(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    if let Some(member) = member {
+        if let Ok(score) =
+            data::score::get_rivals_score_for_id(&ctx.data().db, member.user.id.get()).await
+        {
+            ctx.reply(format!(
+                "The Rivals score prediction for {} is {} ranked at {}",
+                member.mention(),
+                score.score,
+                score.rank
+            ))
+            .await?;
+        } else {
+            ctx.reply(format!(
+                "{} isn't found on the scoreboard",
+                member.mention()
+            ))
+            .await?;
+        }
+    } else {
+        let scoreboard = data::score::show_rivals_scoreboard(&ctx.data().db).await?;
+        let total_page = scoreboard.len() / 10 + 1;
+        let mut pages: Vec<String> = vec![];
+
+        for page in 1..=total_page {
+            let mut builder = Builder::new();
+            builder.push_record(["Rank", "Name", "Score"]);
+
+            let offset = (page - 1) * 10;
+            let score_iter = scoreboard.iter().skip(offset).take(10);
+            for score in score_iter {
+                if let Ok(member) = ctx
+                    .guild_id()
+                    .ok_or("Failed to find guild")?
+                    .member(&ctx, UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(member.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else if let Ok(user) = ctx
+                    .http()
+                    .get_user(UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(user.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else {
+                    let name = format!("{}...", &score.id.to_string()[0..9]);
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                }
+            }
+            let table = builder
+                .build()
+                .with(Style::markdown().remove_left().remove_right())
+                .with(Alignment::center_vertical())
+                .with(Alignment::center())
+                .to_string();
+            pages.push(table);
+        }
+
+        paginate(ctx, pages, "Rivals Prediction Leaderboard").await?;
+    }
+    Ok(())
+}
 fn truncate(name: &str) -> String {
     if name.len() > 12 {
         return format!("{}...", name.chars().take(9).collect::<String>());
@@ -199,7 +267,7 @@ pub async fn paginate(
         // We defined our button IDs to start with `ctx_id`. If they don't, some other command's
         // button was pressed
         .filter(move |press| press.data.custom_id.starts_with(&ctx_id.to_string()))
-        // Timeout when no navigation button has been pressed for 24 hours
+        // Timeout when no navigation button has been pressed for 10 minutes
         .timeout(std::time::Duration::from_secs(600))
         .await
     {
