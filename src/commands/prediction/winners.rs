@@ -3,7 +3,7 @@ use poise::serenity_prelude::UserId;
 use crate::{data::score, Context, Error};
 
 #[allow(clippy::unused_async)]
-#[poise::command(slash_command, subcommands("dota", "cs"))]
+#[poise::command(slash_command, subcommands("dota", "cs", "rivals"))]
 pub async fn winners(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }

@@ -10,7 +10,7 @@ use tabled::{
 use crate::{data, Context, Error};
 
 #[allow(clippy::unused_async)]
-#[poise::command(slash_command, subcommands("dota", "cs"))]
+#[poise::command(slash_command, subcommands("dota", "cs", "rivals"))]
 pub async fn show(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }

@@ -39,6 +39,12 @@ pub async fn manual(
             ScheduledEventType::Voice,
             ctx.data().config.cs_channel,
         ),
+        EventChoice::Rivals => (
+            format!("Rivals - {}", &data.name),
+            EventType::Rivals,
+            ScheduledEventType::Voice,
+            ctx.data().config.rivals_channel,
+        ),
         EventChoice::Other => (
             format!("Other - {}", &data.name),
             EventType::Other,
@@ -99,6 +105,9 @@ enum EventChoice {
 
     #[name = "CS"]
     CS,
+
+    #[name = "Rivals"]
+    Rivals,
 
     #[name = "Other"]
     Other,

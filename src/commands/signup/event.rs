@@ -49,7 +49,7 @@ pub async fn event(
             time = data.time;
             hours = get_hours(data.series_length.as_str())?;
             series_length = Some(data.series_length);
-            channel_id = ctx.data().config.cs_channel;
+            channel_id = ctx.data().config.rivals_channel;
             scheduled_type = ScheduledEventType::Voice;
         }
         EventType::Other => {

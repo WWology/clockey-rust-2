@@ -41,7 +41,7 @@ pub async fn invoice(
     };
 
     let gardener_id = ctx.author().id.get();
-    let (dota_invoice, cs_invoice, other_invoice) = future::try_join3(
+    let (dota_invoice, cs_invoice, rivals_invoice, other_invoice) = future::try_join4(
         Event::get_dota_events_for_id(
             &ctx.data().db,
             start.and_utc().timestamp(),
@@ -49,6 +49,12 @@ pub async fn invoice(
             i64::try_from(gardener_id)?,
         ),
         Event::get_cs_events_for_id(
+            &ctx.data().db,
+            start.and_utc().timestamp(),
+            end.and_utc().timestamp(),
+            i64::try_from(gardener_id)?,
+        ),
+        Event::get_rivals_events_for_id(
             &ctx.data().db,
             start.and_utc().timestamp(),
             end.and_utc().timestamp(),
@@ -63,8 +69,15 @@ pub async fn invoice(
     )
     .await?;
 
-    let invoice_embed =
-        generate_embed(dota_invoice, cs_invoice, other_invoice, start, end, &member)?;
+    let invoice_embed = generate_embed(
+        dota_invoice,
+        cs_invoice,
+        rivals_invoice,
+        other_invoice,
+        start,
+        end,
+        &member,
+    )?;
     ctx.send(CreateReply::new().embed(invoice_embed)).await?;
 
     Ok(())
@@ -73,13 +86,18 @@ pub async fn invoice(
 fn generate_embed(
     dota_invoice: Vec<Event>,
     cs_invoice: Vec<Event>,
+    rivals_invoice: Vec<Event>,
     other_invoice: Vec<Event>,
     start: NaiveDateTime,
     end: NaiveDateTime,
     member: &Member,
 ) -> Result<CreateEmbed, Error> {
-    let (mut dota_events, mut cs_events, mut other_events): (String, String, String) =
-        (String::new(), String::new(), String::new());
+    let (mut dota_events, mut cs_events, mut rivals_events, mut other_events): (
+        String,
+        String,
+        String,
+        String,
+    ) = (String::new(), String::new(), String::new(), String::new());
     let mut total_hours: i64 = 0;
 
     for event in dota_invoice {
@@ -105,6 +123,17 @@ fn generate_embed(
         total_hours += event.hours;
     }
 
+    for event in rivals_invoice {
+        let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
+        rivals_events += &format!(
+            "{} at {} - {} hours\n",
+            event.name,
+            time.format("%e %b, %Y"),
+            event.hours
+        );
+        total_hours += event.hours;
+    }
+
     for event in other_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         other_events += &format!(
@@ -122,6 +151,7 @@ fn generate_embed(
         .fields(vec![
             ("Dota", dota_events, false),
             ("CS", cs_events, false),
+            ("Rivals", rivals_events, false),
             ("Other", other_events, false),
             ("Total Hours", total_hours.to_string(), false),
         ])

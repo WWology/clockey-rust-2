@@ -22,6 +22,7 @@ pub struct Config {
     processed_emoji: ReactionType,
     dota_channel: u64,
     cs_channel: u64,
+    rivals_channel: u64,
     stage_channel: u64,
     dota_oracle_role: RoleId,
     cs2_awpacle_role: RoleId,
@@ -194,6 +195,11 @@ fn init_config() -> Config {
     } else {
         746_618_267_434_614_804
     };
+    let rivals_channel = if cfg!(debug_assertions) {
+        1_344_498_244_830_498_836
+    } else {
+        746_618_267_434_614_804
+    };
     let stage_channel = if cfg!(debug_assertions) {
         991_620_472_544_440_454
     } else {
@@ -209,6 +215,7 @@ fn init_config() -> Config {
         processed_emoji,
         dota_channel,
         cs_channel,
+        rivals_channel,
         stage_channel,
         dota_oracle_role,
         cs2_awpacle_role,
