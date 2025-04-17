@@ -1,6 +1,6 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use poise::{
-    serenity_prelude::{futures::future, CreateEmbed, CreateEmbedAuthor, Member, Timestamp},
+    serenity_prelude::{futures::future, CreateEmbed, CreateEmbedAuthor, Timestamp},
     CreateReply,
 };
 
@@ -13,7 +13,7 @@ pub async fn report(
     #[description = "End date of the invoice, please use YYYY-MM-DD format"] end_date: Option<
         String,
     >,
-    #[description = "Gardener to get a report from"] gardener: Option<Member>,
+    #[description = "Should report be separated by gardener / game"] report_option: ReportOption,
 ) -> Result<(), Error> {
     ctx.defer_ephemeral().await?;
 
@@ -38,61 +38,77 @@ pub async fn report(
         None => Utc::now().naive_utc(),
     };
 
-    if let Some(gardener) = gardener {
-        let report = generate_report_for_gardener(&ctx, start, end, gardener).await?;
-        ctx.send(CreateReply::new().embed(report)).await?;
-    } else {
-        let report = generate_report(&ctx, start, end).await?;
-        ctx.send(CreateReply::new().embed(report)).await?;
+    match report_option {
+        ReportOption::Gardener => {
+            let report = generate_report_per_gardener(&ctx, start, end).await?;
+            ctx.send(CreateReply::new().embed(report)).await?;
+        }
+        ReportOption::Game => {
+            let report = generate_report_per_game(&ctx, start, end).await?;
+            ctx.send(CreateReply::new().embed(report)).await?;
+        }
     }
     Ok(())
 }
 
-async fn generate_report_for_gardener(
+#[allow(clippy::too_many_lines)]
+async fn generate_report_per_gardener(
     ctx: &Context<'_>,
     start: NaiveDateTime,
     end: NaiveDateTime,
-    gardener: Member,
 ) -> Result<CreateEmbed, Error> {
-    let (dota_invoice, cs_invoice, rivals_invoice, other_invoice) = future::try_join4(
-        Event::get_dota_events_for_id(
+    let (nik_invoice, kit_invoice, ww_invoice, bonteng_invoice, sam_invoice) = future::try_join5(
+        Event::get_events_for_id(
             &ctx.data().db,
             start.and_utc().timestamp(),
             end.and_utc().timestamp(),
-            i64::try_from(gardener.user.id.get())?,
+            293_360_731_867_316_225,
         ),
-        Event::get_cs_events_for_id(
+        Event::get_events_for_id(
             &ctx.data().db,
             start.and_utc().timestamp(),
             end.and_utc().timestamp(),
-            i64::try_from(gardener.user.id.get())?,
+            204_923_365_205_475_329,
         ),
-        Event::get_rivals_events_for_id(
+        Event::get_events_for_id(
             &ctx.data().db,
             start.and_utc().timestamp(),
             end.and_utc().timestamp(),
-            i64::try_from(gardener.user.id.get())?,
+            754_724_309_276_164_159,
         ),
-        Event::get_other_events_for_id(
+        Event::get_events_for_id(
             &ctx.data().db,
             start.and_utc().timestamp(),
             end.and_utc().timestamp(),
-            i64::try_from(gardener.user.id.get())?,
+            172_360_818_715_918_337,
+        ),
+        Event::get_events_for_id(
+            &ctx.data().db,
+            start.and_utc().timestamp(),
+            end.and_utc().timestamp(),
+            332_438_787_588_227_072,
         ),
     )
     .await?;
 
-    let (mut dota_events, mut cs_events, mut rivals_events, mut other_events): (
+    let (mut nik_events, mut kit_events, mut ww_events, mut bonteng_events, mut sam_events): (
         String,
         String,
         String,
         String,
-    ) = (String::new(), String::new(), String::new(), String::new());
+        String,
+    ) = (
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+    );
     let mut total_hours: i64 = 0;
 
-    for event in dota_invoice {
+    for event in nik_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
-        dota_events += format!(
+        nik_events += format!(
             "{} at {} - {} hours\n",
             event.name,
             time.format("%e %b, %Y"),
@@ -102,9 +118,9 @@ async fn generate_report_for_gardener(
         total_hours += event.hours;
     }
 
-    for event in cs_invoice {
+    for event in kit_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
-        cs_events += &format!(
+        kit_events += &format!(
             "{} at {} - {} hours\n",
             event.name,
             time.format("%e %b, %Y"),
@@ -113,9 +129,9 @@ async fn generate_report_for_gardener(
         total_hours += event.hours;
     }
 
-    for event in rivals_invoice {
+    for event in ww_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
-        rivals_events += &format!(
+        ww_events += &format!(
             "{} at {} - {} hours\n",
             event.name,
             time.format("%e %b, %Y"),
@@ -124,9 +140,20 @@ async fn generate_report_for_gardener(
         total_hours += event.hours;
     }
 
-    for event in other_invoice {
+    for event in bonteng_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
-        other_events += &format!(
+        bonteng_events += &format!(
+            "{} at {} - {} hours\n",
+            event.name,
+            time.format("%e %b, %Y"),
+            event.hours
+        );
+        total_hours += event.hours;
+    }
+
+    for event in sam_invoice {
+        let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
+        sam_events += &format!(
             "{} at {} - {} hours\n",
             event.name,
             time.format("%e %b, %Y"),
@@ -136,20 +163,23 @@ async fn generate_report_for_gardener(
     }
 
     let embed = CreateEmbed::new()
-        .author(CreateEmbedAuthor::new(gardener.display_name()).icon_url(gardener.face()))
+        .author(CreateEmbedAuthor::new("OG").icon_url(
+            "https://liquipedia.net/commons/images/thumb/7/70/OG_RB_allmode.png/1200px-OG_RB_allmode.png"
+        ))
         .title(format!("{} - {}", start.format("%B"), end.format("%B")))
         .fields(vec![
-            ("Dota", dota_events, false),
-            ("CS", cs_events, false),
-            ("Rivals", rivals_events, false),
-            ("Other", other_events, false),
+            ("Nik", nik_events, false),
+            ("Kit", kit_events, false),
+            ("WW", ww_events, false),
+            ("Bonteng", bonteng_events, false),
+            ("Sam", sam_events, false),
             ("Total Hours", total_hours.to_string(), false),
         ])
         .timestamp(Timestamp::now());
     Ok(embed)
 }
 
-async fn generate_report(
+async fn generate_report_per_game(
     ctx: &Context<'_>,
     start: NaiveDateTime,
     end: NaiveDateTime,
@@ -249,4 +279,13 @@ async fn generate_report(
         ])
         .timestamp(Timestamp::now());
     Ok(embed)
+}
+
+#[derive(poise::ChoiceParameter)]
+enum ReportOption {
+    #[name = "Per Gardener"]
+    Gardener,
+
+    #[name = "Per Game"]
+    Game,
 }
