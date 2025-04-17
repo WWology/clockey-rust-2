@@ -169,6 +169,135 @@ pub async fn rivalsbo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> 
     Ok(())
 }
 
+/// Create MLBB roles for predictions
+#[poise::command(slash_command)]
+pub async fn mlbbbo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    let guild = ctx.guild_id().ok_or("Failed to find guild")?;
+
+    match series_length {
+        1 => {
+            let roles_to_be_created = ["MLBB1-0", "MLBB0-1"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a MLBB Bo1").await?;
+        }
+        2 => {
+            let roles_to_be_created = ["MLBB2-0", "MLBB1-1", "MLBB0-2"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a MLBB Bo2").await?;
+        }
+        3 => {
+            let roles_to_be_created = ["MLBB2-0", "MLBB2-1", "MLBB1-2", "MLBB0-2"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a MLBB Bo3").await?;
+        }
+        5 => {
+            let roles_to_be_created = [
+                "MLBB3-0", "MLBB3-1", "MLBB3-2", "MLBB2-3", "MLBB1-3", "MLBB0-3",
+            ];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a MLBB Bo5").await?;
+        }
+        7 => {
+            let roles_to_be_created = [
+                "MLBB4-0", "MLBB4-1", "MLBB4-2", "MLBB4-3", "MLBB3-4", "MLBB2-4", "MLBB1-4",
+                "MLBB0-4",
+            ];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a MLBB Bo7").await?;
+        }
+        _ => {
+            ctx.reply("Invalid series length").await?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Create HoK roles for predictions
+#[poise::command(slash_command)]
+pub async fn hokbo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    let guild = ctx.guild_id().ok_or("Failed to find guild")?;
+
+    match series_length {
+        1 => {
+            let roles_to_be_created = ["HoK1-0", "HoK0-1"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a HoK Bo1").await?;
+        }
+        2 => {
+            let roles_to_be_created = ["HoK2-0", "HoK1-1", "HoK0-2"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a HoK Bo2").await?;
+        }
+        3 => {
+            let roles_to_be_created = ["HoK2-0", "HoK2-1", "HoK1-2", "HoK0-2"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a HoK Bo3").await?;
+        }
+        5 => {
+            let roles_to_be_created = ["HoK3-0", "HoK3-1", "HoK3-2", "HoK2-3", "HoK1-3", "HoK0-3"];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a HoK Bo5").await?;
+        }
+        7 => {
+            let roles_to_be_created = [
+                "HoK4-0", "HoK4-1", "HoK4-2", "HoK4-3", "HoK3-4", "HoK2-4", "HoK1-4", "HoK0-4",
+            ];
+            for role_name in roles_to_be_created {
+                guild
+                    .create_role(&ctx, EditRole::new().name(role_name))
+                    .await?;
+            }
+            ctx.reply("Created roles for a HoK Bo7").await?;
+        }
+        _ => {
+            ctx.reply("Invalid series length").await?;
+        }
+    }
+
+    Ok(())
+}
+
 /// Create extra roles for predictions
 #[poise::command(slash_command)]
 pub async fn extrabo(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
@@ -421,6 +550,167 @@ pub async fn deleterivals(ctx: Context<'_>, series_length: u8) -> Result<(), Err
                 }
             }
             ctx.reply("Deleted roles for Rivals Bo7").await?;
+        }
+        _ => {
+            ctx.reply("Invalid series length").await?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Delete created MLBB roles for prediction
+#[poise::command(slash_command)]
+pub async fn deletemlbb(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    let guild = ctx.guild_id().ok_or("Failed to find guild")?;
+    let role_list = guild.roles(&ctx).await?;
+
+    match series_length {
+        1 => {
+            let roles_to_be_deleted = ["MLBB1-0", "MLBB0-1"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for MLBB Bo1").await?;
+        }
+        2 => {
+            let roles_to_be_deleted = ["MLBB2-0", "MLBB1-1", "MLBB0-1"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for MLBB Bo2").await?;
+        }
+        3 => {
+            let roles_to_be_deleted = ["MLBB2-0", "MLBB2-1", "MLBB1-2", "MLBB0-2"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for MLBB Bo3").await?;
+        }
+        5 => {
+            let roles_to_be_deleted = [
+                "MLBB3-0", "MLBB3-1", "MLBB3-2", "MLBB2-3", "MLBB1-3", "MLBB0-3",
+            ];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for MLBB Bo5").await?;
+        }
+        7 => {
+            let roles_to_be_deleted = [
+                "MLBB4-0", "MLBB4-1", "MLBB4-2", "MLBB4-3", "MLBB3-4", "MLBB2-4", "MLBB1-4",
+                "MLBB0-4",
+            ];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for MLBB Bo7").await?;
+        }
+        _ => {
+            ctx.reply("Invalid series length").await?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Delete created HoK roles for prediction
+#[poise::command(slash_command)]
+pub async fn deletehok(ctx: Context<'_>, series_length: u8) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    let guild = ctx.guild_id().ok_or("Failed to find guild")?;
+    let role_list = guild.roles(&ctx).await?;
+
+    match series_length {
+        1 => {
+            let roles_to_be_deleted = ["HoK1-0", "HoK0-1"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for HoK Bo1").await?;
+        }
+        2 => {
+            let roles_to_be_deleted = ["HoK2-0", "HoK1-1", "HoK0-1"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for HoK Bo2").await?;
+        }
+        3 => {
+            let roles_to_be_deleted = ["HoK2-0", "HoK2-1", "HoK1-2", "HoK0-2"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for HoK Bo3").await?;
+        }
+        5 => {
+            let roles_to_be_deleted = ["HoK3-0", "HoK3-1", "HoK3-2", "HoK2-3", "HoK1-3", "HoK0-3"];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for HoK Bo5").await?;
+        }
+        7 => {
+            let roles_to_be_deleted = [
+                "HoK4-0", "HoK4-1", "HoK4-2", "HoK4-3", "HoK3-4", "HoK2-4", "HoK1-4", "HoK0-4",
+            ];
+            for role_name in roles_to_be_deleted {
+                if let Some(role) = role_list
+                    .iter()
+                    .find(|role| role.1.name.as_str() == role_name)
+                {
+                    guild.delete_role(&ctx, role.0).await?;
+                }
+            }
+            ctx.reply("Deleted roles for HoK Bo7").await?;
         }
         _ => {
             ctx.reply("Invalid series length").await?;

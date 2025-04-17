@@ -10,12 +10,12 @@ use tabled::{
 use crate::{data, Context, Error};
 
 #[allow(clippy::unused_async)]
-#[poise::command(slash_command, subcommands("dota", "cs", "rivals"))]
+#[poise::command(slash_command, subcommands("dota", "cs", "rivals", "mlbb", "hok"))]
 pub async fn show(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-/// Show dota scoreboard or user score and rank
+/// Show Dota scoreboard or user score and rank
 #[poise::command(slash_command)]
 pub async fn dota(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
     ctx.defer().await?;
@@ -84,7 +84,7 @@ pub async fn dota(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error>
     Ok(())
 }
 
-/// Show cs scoreboard or user score and rank
+/// Show CS scoreboard or user score and rank
 #[poise::command(slash_command)]
 pub async fn cs(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
     ctx.defer().await?;
@@ -153,7 +153,7 @@ pub async fn cs(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
     Ok(())
 }
 
-/// Show rivals scoreboard or user score and rank
+/// Show Rivals scoreboard or user score and rank
 #[poise::command(slash_command)]
 pub async fn rivals(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
     ctx.defer().await?;
@@ -221,6 +221,145 @@ pub async fn rivals(ctx: Context<'_>, member: Option<Member>) -> Result<(), Erro
     }
     Ok(())
 }
+
+/// Show MLBB scoreboard or user score and rank
+#[poise::command(slash_command)]
+pub async fn mlbb(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    if let Some(member) = member {
+        if let Ok(score) =
+            data::score::get_mlbb_score_for_id(&ctx.data().db, member.user.id.get()).await
+        {
+            ctx.reply(format!(
+                "The MLBB score prediction for {} is {} ranked at {}",
+                member.mention(),
+                score.score,
+                score.rank
+            ))
+            .await?;
+        } else {
+            ctx.reply(format!(
+                "{} isn't found on the scoreboard",
+                member.mention()
+            ))
+            .await?;
+        }
+    } else {
+        let scoreboard = data::score::show_mlbb_scoreboard(&ctx.data().db).await?;
+        let total_page = scoreboard.len() / 10 + 1;
+        let mut pages: Vec<String> = vec![];
+
+        for page in 1..=total_page {
+            let mut builder = Builder::new();
+            builder.push_record(["Rank", "Name", "Score"]);
+
+            let offset = (page - 1) * 10;
+            let score_iter = scoreboard.iter().skip(offset).take(10);
+            for score in score_iter {
+                if let Ok(member) = ctx
+                    .guild_id()
+                    .ok_or("Failed to find guild")?
+                    .member(&ctx, UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(member.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else if let Ok(user) = ctx
+                    .http()
+                    .get_user(UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(user.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else {
+                    let name = format!("{}...", &score.id.to_string()[0..9]);
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                }
+            }
+            let table = builder
+                .build()
+                .with(Style::markdown().remove_left().remove_right())
+                .with(Alignment::center_vertical())
+                .with(Alignment::center())
+                .to_string();
+            pages.push(table);
+        }
+
+        paginate(ctx, pages, "MLBB Prediction Leaderboard").await?;
+    }
+    Ok(())
+}
+
+/// Show HoK scoreboard or user score and rank
+#[poise::command(slash_command)]
+pub async fn hok(ctx: Context<'_>, member: Option<Member>) -> Result<(), Error> {
+    ctx.defer().await?;
+
+    if let Some(member) = member {
+        if let Ok(score) =
+            data::score::get_hok_score_for_id(&ctx.data().db, member.user.id.get()).await
+        {
+            ctx.reply(format!(
+                "The HoK score prediction for {} is {} ranked at {}",
+                member.mention(),
+                score.score,
+                score.rank
+            ))
+            .await?;
+        } else {
+            ctx.reply(format!(
+                "{} isn't found on the scoreboard",
+                member.mention()
+            ))
+            .await?;
+        }
+    } else {
+        let scoreboard = data::score::show_hok_scoreboard(&ctx.data().db).await?;
+        let total_page = scoreboard.len() / 10 + 1;
+        let mut pages: Vec<String> = vec![];
+
+        for page in 1..=total_page {
+            let mut builder = Builder::new();
+            builder.push_record(["Rank", "Name", "Score"]);
+
+            let offset = (page - 1) * 10;
+            let score_iter = scoreboard.iter().skip(offset).take(10);
+            for score in score_iter {
+                if let Ok(member) = ctx
+                    .guild_id()
+                    .ok_or("Failed to find guild")?
+                    .member(&ctx, UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(member.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else if let Ok(user) = ctx
+                    .http()
+                    .get_user(UserId::new(u64::try_from(score.id)?))
+                    .await
+                {
+                    let name = truncate(user.display_name());
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                } else {
+                    let name = format!("{}...", &score.id.to_string()[0..9]);
+                    builder.push_record([score.rank.to_string(), name, score.score.to_string()]);
+                }
+            }
+            let table = builder
+                .build()
+                .with(Style::markdown().remove_left().remove_right())
+                .with(Alignment::center_vertical())
+                .with(Alignment::center())
+                .to_string();
+            pages.push(table);
+        }
+
+        paginate(ctx, pages, "HoK Prediction Leaderboard").await?;
+    }
+    Ok(())
+}
+
 fn truncate(name: &str) -> String {
     if name.len() > 12 {
         return format!("{}...", name.chars().take(9).collect::<String>());

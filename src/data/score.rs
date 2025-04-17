@@ -115,3 +115,70 @@ pub async fn update_rivals_scoreboard(db: &Pool<Sqlite>, id: u64) -> Result<(), 
         .await?;
     Ok(())
 }
+
+// MLBB
+pub async fn get_mlbb_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
+    let id = i64::try_from(id)?;
+    let row = sqlx::query_file_as!(
+        Score,
+        "src/data/score/sql/mlbb/get_mlbb_score_for_id.sql",
+        id
+    )
+    .fetch_one(db)
+    .await?;
+    Ok(row)
+}
+
+pub async fn get_mlbb_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
+    let rows = sqlx::query_file_as!(Score, "src/data/score/sql/mlbb/get_mlbb_winners.sql")
+        .fetch_all(db)
+        .await?;
+    Ok(rows)
+}
+
+pub async fn show_mlbb_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
+    let scoreboard =
+        sqlx::query_file_as!(Score, "src/data/score/sql/mlbb/show_mlbb_scoreboard.sql")
+            .fetch_all(db)
+            .await?;
+    Ok(scoreboard)
+}
+
+pub async fn update_mlbb_scoreboard(db: &Pool<Sqlite>, id: u64) -> Result<(), Error> {
+    let id = i64::try_from(id)?;
+    sqlx::query_file!("src/data/score/sql/mlbb/update_mlbb_scoreboard.sql", id)
+        .execute(db)
+        .await?;
+    Ok(())
+}
+
+// HoK
+pub async fn get_hok_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
+    let id = i64::try_from(id)?;
+    let row = sqlx::query_file_as!(Score, "src/data/score/sql/hok/get_hok_score_for_id.sql", id)
+        .fetch_one(db)
+        .await?;
+    Ok(row)
+}
+
+pub async fn get_hok_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
+    let rows = sqlx::query_file_as!(Score, "src/data/score/sql/hok/get_hok_winners.sql")
+        .fetch_all(db)
+        .await?;
+    Ok(rows)
+}
+
+pub async fn show_hok_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
+    let scoreboard = sqlx::query_file_as!(Score, "src/data/score/sql/hok/show_hok_scoreboard.sql")
+        .fetch_all(db)
+        .await?;
+    Ok(scoreboard)
+}
+
+pub async fn update_hok_scoreboard(db: &Pool<Sqlite>, id: u64) -> Result<(), Error> {
+    let id = i64::try_from(id)?;
+    sqlx::query_file!("src/data/score/sql/hok/update_hok_scoreboard.sql", id)
+        .execute(db)
+        .await?;
+    Ok(())
+}

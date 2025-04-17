@@ -7,6 +7,7 @@ use crate::{data::event::EventType, Context, Error};
 
 /// Create a new event for Gardeners to sign up for
 #[poise::command(slash_command)]
+#[allow(clippy::too_many_lines)]
 pub async fn event(
     ctx: Context<'_>,
     #[description = "The type of event"] event_type: EventType,
@@ -47,9 +48,27 @@ pub async fn event(
             let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
             name = format!("Rivals - {}", data.name);
             time = data.time;
-            hours = get_hours(data.series_length.as_str())?;
+            hours = get_rivals_hours(data.series_length.as_str())?;
             series_length = Some(data.series_length);
             channel_id = ctx.data().config.rivals_channel;
+            scheduled_type = ScheduledEventType::Voice;
+        }
+        EventType::MLBB => {
+            let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
+            name = format!("MLBB - {}", data.name);
+            time = data.time;
+            hours = get_mlbb_hok_hours(data.series_length.as_str())?;
+            series_length = Some(data.series_length);
+            channel_id = ctx.data().config.mlbb_channel;
+            scheduled_type = ScheduledEventType::Voice;
+        }
+        EventType::HoK => {
+            let data = GameModal::execute(ctx).await?.ok_or("No data provided")?;
+            name = format!("HoK - {}", data.name);
+            time = data.time;
+            hours = get_mlbb_hok_hours(data.series_length.as_str())?;
+            series_length = Some(data.series_length);
+            channel_id = ctx.data().config.hok_channel;
             scheduled_type = ScheduledEventType::Voice;
         }
         EventType::Other => {
@@ -159,6 +178,24 @@ fn get_hours(series_length: &str) -> Result<u8, Error> {
         "bo2" => Ok(3),
         "bo3" => Ok(4),
         "bo5" => Ok(6),
+        _ => Err("Invalid series length".into()),
+    }
+}
+
+fn get_rivals_hours(series_length: &str) -> Result<u8, Error> {
+    match series_length.to_lowercase().as_str() {
+        "bo3" => Ok(3),
+        "bo5" => Ok(4),
+        "bo7" => Ok(5),
+        _ => Err("Invalid series length".into()),
+    }
+}
+
+fn get_mlbb_hok_hours(series_length: &str) -> Result<u8, Error> {
+    match series_length.to_lowercase().as_str() {
+        "bo3" => Ok(2),
+        "bo5" => Ok(3),
+        "bo7" => Ok(4),
         _ => Err("Invalid series length".into()),
     }
 }

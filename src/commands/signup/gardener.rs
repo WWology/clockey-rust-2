@@ -185,6 +185,12 @@ fn parse_message(msg: &str) -> Result<EventDetail, Error> {
         EventType::Dota
     } else if msg.contains("CS") {
         EventType::CS
+    } else if msg.contains("Rivals") {
+        EventType::Rivals
+    } else if msg.contains("MLBB") {
+        EventType::MLBB
+    } else if msg.contains("HoK") {
+        EventType::HoK
     } else if msg.contains("Other") {
         EventType::Other
     } else {

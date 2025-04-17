@@ -41,6 +41,7 @@ pub async fn invoice(
     };
 
     let gardener_id = ctx.author().id.get();
+    // TODO how to add MLBB & HoK using try_join_all
     let (dota_invoice, cs_invoice, rivals_invoice, other_invoice) = future::try_join4(
         Event::get_dota_events_for_id(
             &ctx.data().db,

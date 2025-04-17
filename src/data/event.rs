@@ -3,6 +3,7 @@ use sqlx::{prelude::FromRow, Pool, Sqlite, Type};
 
 use crate::Error;
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Type, Debug, Copy, Clone, poise::ChoiceParameter)]
 #[sqlx(type_name = "type")]
 pub enum EventType {
@@ -174,6 +175,76 @@ impl Event {
         .fetch_all(db)
         .await?;
         Ok(rivals_rows)
+    }
+
+    // MLBB
+    pub async fn get_mlbb_events(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let mlbb_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/mlbb/get_mlbb_events.sql",
+            start,
+            end
+        )
+        .fetch_all(db)
+        .await?;
+        Ok(mlbb_rows)
+    }
+
+    pub async fn get_mlbb_events_for_id(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
+        gardener_id: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let mlbb_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/mlbb/get_mlbb_events_for_id.sql",
+            start,
+            end,
+            gardener_id
+        )
+        .fetch_all(db)
+        .await?;
+        Ok(mlbb_rows)
+    }
+
+    // HoK
+    pub async fn get_hok_events(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let hok_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/hok/get_hok_events.sql",
+            start,
+            end
+        )
+        .fetch_all(db)
+        .await?;
+        Ok(hok_rows)
+    }
+
+    pub async fn get_hok_events_for_id(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
+        gardener_id: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let hok_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/hok/get_hok_events_for_id.sql",
+            start,
+            end,
+            gardener_id
+        )
+        .fetch_all(db)
+        .await?;
+        Ok(hok_rows)
     }
 
     // Others

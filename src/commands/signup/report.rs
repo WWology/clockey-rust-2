@@ -184,6 +184,7 @@ async fn generate_report_per_game(
     start: NaiveDateTime,
     end: NaiveDateTime,
 ) -> Result<CreateEmbed, Error> {
+    // TODO how to add MLBB & HoK events using try_join_all
     let (dota_invoice, cs_invoice, rivals_invoice, other_invoice) = future::try_join4(
         Event::get_dota_events(
             &ctx.data().db,

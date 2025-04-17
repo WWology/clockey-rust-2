@@ -45,6 +45,18 @@ pub async fn manual(
             ScheduledEventType::Voice,
             ctx.data().config.rivals_channel,
         ),
+        EventChoice::MLBB => (
+            format!("MLBB - {}", &data.name),
+            EventType::MLBB,
+            ScheduledEventType::Voice,
+            ctx.data().config.mlbb_channel,
+        ),
+        EventChoice::HoK => (
+            format!("HoK - {}", &data.name),
+            EventType::HoK,
+            ScheduledEventType::Voice,
+            ctx.data().config.hok_channel,
+        ),
         EventChoice::Other => (
             format!("Other - {}", &data.name),
             EventType::Other,
@@ -98,6 +110,7 @@ fn get_gardener_id(gardener: &GardenerChoice) -> i64 {
     }
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, poise::ChoiceParameter)]
 enum EventChoice {
     #[name = "Dota"]
@@ -108,6 +121,12 @@ enum EventChoice {
 
     #[name = "Rivals"]
     Rivals,
+
+    #[name = "MLBB"]
+    MLBB,
+
+    #[name = "HoK"]
+    HoK,
 
     #[name = "Other"]
     Other,

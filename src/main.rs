@@ -23,6 +23,8 @@ pub struct Config {
     dota_channel: u64,
     cs_channel: u64,
     rivals_channel: u64,
+    mlbb_channel: u64,
+    hok_channel: u64,
     stage_channel: u64,
     dota_oracle_role: RoleId,
     cs2_awpacle_role: RoleId,
@@ -107,10 +109,16 @@ async fn main() {
                 prediction::deletecs(),
                 prediction::deletedota(),
                 prediction::deleteextra(),
+                prediction::deletehok(),
+                prediction::deletemlbb(),
                 prediction::deleterivals(),
                 prediction::dotaadd(),
                 prediction::dotabo(),
                 prediction::extrabo(),
+                prediction::hokadd(),
+                prediction::hokbo(),
+                prediction::mlbbadd(),
+                prediction::mlbbbo(),
                 prediction::rivalsadd(),
                 prediction::rivalsbo(),
                 prediction::show(),
@@ -203,6 +211,16 @@ fn init_config() -> Config {
     } else {
         1_344_498_244_830_498_836
     };
+    let mlbb_channel = if cfg!(debug_assertions) {
+        738_607_620_566_286_398
+    } else {
+        1_350_253_132_168_429_801
+    };
+    let hok_channel = if cfg!(debug_assertions) {
+        738_607_620_566_286_398
+    } else {
+        1_344_676_973_313_658_920
+    };
     let stage_channel = if cfg!(debug_assertions) {
         991_620_472_544_440_454
     } else {
@@ -219,6 +237,8 @@ fn init_config() -> Config {
         dota_channel,
         cs_channel,
         rivals_channel,
+        mlbb_channel,
+        hok_channel,
         stage_channel,
         dota_oracle_role,
         cs2_awpacle_role,
