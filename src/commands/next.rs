@@ -41,3 +41,23 @@ pub async fn cs(ctx: Context<'_>) -> Result<(), Error> {
 
     Ok(())
 }
+
+/// Next rivals game for OG
+#[poise::command(slash_command)]
+pub async fn rivals(ctx: Context<'_>) -> Result<(), Error> {
+    let guild_id = ctx.guild_id().ok_or("Failed to find guild")?;
+
+    let mut event_list = guild_id.scheduled_events(&ctx, false).await?;
+    event_list.sort_by(|a, b| a.start_time.timestamp().cmp(&b.start_time.timestamp()));
+    let next_cs = event_list
+        .iter()
+        .find(|event| event.name.contains("Rivals"));
+    if let Some(cs) = next_cs {
+        ctx.reply(format!("https://discord.com/events/{guild_id}/{}", cs.id))
+            .await?;
+    } else {
+        ctx.reply("No rivals games planned currently").await?;
+    }
+
+    Ok(())
+}

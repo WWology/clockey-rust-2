@@ -199,9 +199,9 @@ fn init_config() -> Config {
         746_618_267_434_614_804
     };
     let rivals_channel = if cfg!(debug_assertions) {
-        1_344_498_244_830_498_836
+        738_607_620_566_286_398
     } else {
-        746_618_267_434_614_804
+        1_344_498_244_830_498_836
     };
     let stage_channel = if cfg!(debug_assertions) {
         991_620_472_544_440_454
