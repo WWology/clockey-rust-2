@@ -15,6 +15,12 @@ pub enum EventType {
     #[name = "Rivals"]
     Rivals,
 
+    #[name = "MLBB"]
+    MLBB,
+
+    #[name = "HoK"]
+    HoK,
+
     #[name = "Other"]
     Other,
 }
@@ -203,6 +209,24 @@ impl Event {
         .fetch_all(db)
         .await?;
         Ok(other_rows)
+    }
+
+    pub async fn get_events_for_id(
+        db: &Pool<Sqlite>,
+        start: i64,
+        end: i64,
+        gardener_id: i64,
+    ) -> Result<Vec<Event>, Error> {
+        let event_rows = sqlx::query_file_as!(
+            Event,
+            "src/data/event/sql/get_events_for_id.sql",
+            start,
+            end,
+            gardener_id
+        )
+        .fetch_all(db)
+        .await?;
+        Ok(event_rows)
     }
 
     pub fn gardener_name(&self) -> String {
