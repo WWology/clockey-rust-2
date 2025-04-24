@@ -86,17 +86,18 @@ pub async fn event(
     if let EventType::Other = event_type {
         reply_text = format!(
             "Hey <@&720253636797530203>\
-            \n\nI need 1 gardener to work {name}, at <t:{time}:F>\
+            \n\nI need 1 gardener to work {name}, at <t:{time}:F> <t:{time}:R>\
             \n\nPlease react below with a <:OGpeepoYes:730890894814740541> to sign up!\
             \n\nYou will be able to add {hours} hours of work to your invoice for the month"
         );
     } else {
         reply_text = format!(
             "Hey <@&720253636797530203>\
-            \n\nI need 1 gardener to work {}, at <t:{}:F>\
+            \n\nI need 1 gardener to work {}, at <t:{}:F> <t:{}:R>\
             \n\nPlease react below with a <:OGpeepoYes:730890894814740541> to sign up!\
             \n\nAs this is a {}, you will be able to add {} hours of work to your invoice for the month",
             name,
+            time,
             time,
             series_length.expect("Series length missing"),
             hours,
