@@ -41,8 +41,7 @@ pub async fn invoice(
     };
 
     let gardener_id = ctx.author().id.get();
-    // TODO how to add MLBB & HoK using try_join_all
-    let (dota_invoice, cs_invoice, rivals_invoice, other_invoice) = future::try_join4(
+    let (dota_invoice, cs_invoice, rivals_invoice) = future::try_join3(
         Event::get_dota_events_for_id(
             &ctx.data().db,
             start.and_utc().timestamp(),
@@ -61,6 +60,22 @@ pub async fn invoice(
             end.and_utc().timestamp(),
             i64::try_from(gardener_id)?,
         ),
+    )
+    .await?;
+
+    let (mlbb_invoice, hok_invoice, other_invoice) = future::try_join3(
+        Event::get_mlbb_events_for_id(
+            &ctx.data().db,
+            start.and_utc().timestamp(),
+            end.and_utc().timestamp(),
+            i64::try_from(gardener_id)?,
+        ),
+        Event::get_hok_events_for_id(
+            &ctx.data().db,
+            start.and_utc().timestamp(),
+            end.and_utc().timestamp(),
+            i64::try_from(gardener_id)?,
+        ),
         Event::get_other_events_for_id(
             &ctx.data().db,
             start.and_utc().timestamp(),
@@ -74,6 +89,8 @@ pub async fn invoice(
         dota_invoice,
         cs_invoice,
         rivals_invoice,
+        mlbb_invoice,
+        hok_invoice,
         other_invoice,
         start,
         end,
@@ -84,21 +101,33 @@ pub async fn invoice(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn generate_embed(
     dota_invoice: Vec<Event>,
     cs_invoice: Vec<Event>,
     rivals_invoice: Vec<Event>,
+    mlbb_invoice: Vec<Event>,
+    hok_invoice: Vec<Event>,
     other_invoice: Vec<Event>,
     start: NaiveDateTime,
     end: NaiveDateTime,
     member: &Member,
 ) -> Result<CreateEmbed, Error> {
-    let (mut dota_events, mut cs_events, mut rivals_events, mut other_events): (
-        String,
-        String,
-        String,
-        String,
-    ) = (String::new(), String::new(), String::new(), String::new());
+    let (
+        mut dota_events,
+        mut cs_events,
+        mut rivals_events,
+        mut mlbb_events,
+        mut hok_events,
+        mut other_events,
+    ): (String, String, String, String, String, String) = (
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+    );
     let mut total_hours: i64 = 0;
 
     for event in dota_invoice {
@@ -135,6 +164,28 @@ fn generate_embed(
         total_hours += event.hours;
     }
 
+    for event in mlbb_invoice {
+        let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
+        mlbb_events += &format!(
+            "{} at {} - {} hours\n",
+            event.name,
+            time.format("%e %b, %Y"),
+            event.hours
+        );
+        total_hours += event.hours;
+    }
+
+    for event in hok_invoice {
+        let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
+        hok_events += &format!(
+            "{} at {} - {} hours\n",
+            event.name,
+            time.format("%e %b, %Y"),
+            event.hours
+        );
+        total_hours += event.hours;
+    }
+
     for event in other_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         other_events += &format!(
@@ -153,6 +204,8 @@ fn generate_embed(
             ("Dota", dota_events, false),
             ("CS", cs_events, false),
             ("Rivals", rivals_events, false),
+            ("MLBB", mlbb_events, false),
+            ("HoK", hok_events, false),
             ("Other", other_events, false),
             ("Total Hours", total_hours.to_string(), false),
         ])
