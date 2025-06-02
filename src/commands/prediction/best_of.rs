@@ -372,7 +372,7 @@ pub async fn deletedota(ctx: Context<'_>, series_length: u8) -> Result<(), Error
             ctx.reply("Deleted roles for Dota Bo1").await?;
         }
         2 => {
-            let roles_to_be_deleted = ["D2-0", "D1-1", "D0-1"];
+            let roles_to_be_deleted = ["D2-0", "D1-1", "D0-2"];
             for role_name in roles_to_be_deleted {
                 if let Some(role) = role_list
                     .iter()
@@ -437,7 +437,7 @@ pub async fn deletecs(ctx: Context<'_>, series_length: u8) -> Result<(), Error> 
             ctx.reply("Deleted roles for CS Bo1").await?;
         }
         2 => {
-            let roles_to_be_deleted = ["CS2-0", "CS1-1", "CS0-1"];
+            let roles_to_be_deleted = ["CS2-0", "CS1-1", "CS0-2"];
             for role_name in roles_to_be_deleted {
                 if let Some(role) = role_list
                     .iter()
@@ -502,7 +502,7 @@ pub async fn deleterivals(ctx: Context<'_>, series_length: u8) -> Result<(), Err
             ctx.reply("Deleted roles for Rivals Bo1").await?;
         }
         2 => {
-            let roles_to_be_deleted = ["RIV2-0", "RIV1-1", "RIV0-1"];
+            let roles_to_be_deleted = ["RIV2-0", "RIV1-1", "RIV0-2"];
             for role_name in roles_to_be_deleted {
                 if let Some(role) = role_list
                     .iter()
@@ -581,7 +581,7 @@ pub async fn deletemlbb(ctx: Context<'_>, series_length: u8) -> Result<(), Error
             ctx.reply("Deleted roles for MLBB Bo1").await?;
         }
         2 => {
-            let roles_to_be_deleted = ["MLBB2-0", "MLBB1-1", "MLBB0-1"];
+            let roles_to_be_deleted = ["MLBB2-0", "MLBB1-1", "MLBB0-2"];
             for role_name in roles_to_be_deleted {
                 if let Some(role) = role_list
                     .iter()
@@ -663,7 +663,7 @@ pub async fn deletehok(ctx: Context<'_>, series_length: u8) -> Result<(), Error>
             ctx.reply("Deleted roles for HoK Bo1").await?;
         }
         2 => {
-            let roles_to_be_deleted = ["HoK2-0", "HoK1-1", "HoK0-1"];
+            let roles_to_be_deleted = ["HoK2-0", "HoK1-1", "HoK0-2"];
             for role_name in roles_to_be_deleted {
                 if let Some(role) = role_list
                     .iter()
@@ -742,7 +742,7 @@ pub async fn deleteextra(ctx: Context<'_>, series_length: u8) -> Result<(), Erro
             ctx.reply("Deleted roles for extra Bo1").await?;
         }
         2 => {
-            let roles_to_be_deleted = ["EX2-0", "EX1-1", "EX0-1"];
+            let roles_to_be_deleted = ["EX2-0", "EX1-1", "EX0-2"];
             for role_name in roles_to_be_deleted {
                 if let Some(role) = role_list
                     .iter()
