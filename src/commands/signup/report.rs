@@ -106,6 +106,7 @@ async fn generate_report_per_gardener(
     );
     let mut total_hours: i64 = 0;
 
+    let mut nik_total_hours: i64 = 0;
     for event in nik_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         nik_events += format!(
@@ -115,9 +116,12 @@ async fn generate_report_per_gardener(
             event.hours
         )
         .as_str();
+        nik_total_hours += event.hours;
         total_hours += event.hours;
     }
+    nik_events += format!("Total: {nik_total_hours}").as_str();
 
+    let mut kit_total_hours: i64 = 0;
     for event in kit_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         kit_events += &format!(
@@ -126,9 +130,12 @@ async fn generate_report_per_gardener(
             time.format("%e %b, %Y"),
             event.hours
         );
+        kit_total_hours += event.hours;
         total_hours += event.hours;
     }
+    kit_events += format!("Total: {kit_total_hours}").as_str();
 
+    let mut ww_total_hours: i64 = 0;
     for event in ww_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         ww_events += &format!(
@@ -137,9 +144,12 @@ async fn generate_report_per_gardener(
             time.format("%e %b, %Y"),
             event.hours
         );
+        ww_total_hours += event.hours;
         total_hours += event.hours;
     }
+    ww_events += format!("Total: {ww_total_hours}").as_str();
 
+    let mut bonteng_total_hours: i64 = 0;
     for event in bonteng_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         bonteng_events += &format!(
@@ -148,9 +158,12 @@ async fn generate_report_per_gardener(
             time.format("%e %b, %Y"),
             event.hours
         );
+        bonteng_total_hours += event.hours;
         total_hours += event.hours;
     }
+    bonteng_events += format!("Total: {bonteng_total_hours}").as_str();
 
+    let mut sam_total_hours: i64 = 0;
     for event in sam_invoice {
         let time = DateTime::from_timestamp(event.time, 0).ok_or("Invalid Timestamp")?;
         sam_events += &format!(
@@ -159,8 +172,10 @@ async fn generate_report_per_gardener(
             time.format("%e %b, %Y"),
             event.hours
         );
+        sam_total_hours += event.hours;
         total_hours += event.hours;
     }
+    sam_events += format!("Total: {sam_total_hours}").as_str();
 
     let embed = CreateEmbed::new()
         .author(CreateEmbedAuthor::new("OG").icon_url(
