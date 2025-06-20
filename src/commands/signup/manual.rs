@@ -1,6 +1,8 @@
 use chrono::Utc;
 use poise::{
-    serenity_prelude::{CreateScheduledEvent, ScheduledEventType, Timestamp},
+    serenity_prelude::{
+        Attachment, CreateAttachment, CreateScheduledEvent, ScheduledEventType, Timestamp,
+    },
     Modal,
 };
 
@@ -15,6 +17,7 @@ pub async fn manual(
     ctx: Context<'_>,
     #[description = "Type of the event"] event_choice: EventChoice,
     #[description = "Gardener to work on the event"] gardener: GardenerChoice,
+    #[description = "The banner for this event"] banner: Option<Attachment>,
 ) -> Result<(), Error> {
     let gardener_id: i64 = get_gardener_id(&gardener);
 
@@ -76,13 +79,27 @@ pub async fn manual(
     .await?;
 
     if Utc::now().timestamp() < start_time.timestamp() {
-        ctx.guild_id()
-            .ok_or("Error getting guild id")?
-            .create_scheduled_event(
-                ctx,
-                CreateScheduledEvent::new(scheduled_type, &name, start_time).channel_id(channel_id),
-            )
-            .await?;
+        if let Some(banner) = banner {
+            let attachment = CreateAttachment::url(ctx, &banner.url).await?;
+            ctx.guild_id()
+                .ok_or("Failed to find guild")?
+                .create_scheduled_event(
+                    &ctx,
+                    CreateScheduledEvent::new(scheduled_type, &name, start_time)
+                        .channel_id(channel_id)
+                        .image(&attachment),
+                )
+                .await?;
+        } else {
+            ctx.guild_id()
+                .ok_or("Failed to find guild")?
+                .create_scheduled_event(
+                    &ctx,
+                    CreateScheduledEvent::new(scheduled_type, &name, start_time)
+                        .channel_id(channel_id),
+                )
+                .await?;
+        }
     }
 
     let msg = ctx

@@ -1,5 +1,6 @@
 use poise::serenity_prelude::{
-    CreateAllowedMentions, CreateScheduledEvent, ScheduledEventType, Timestamp,
+    Attachment, CreateAllowedMentions, CreateAttachment, CreateScheduledEvent, ScheduledEventType,
+    Timestamp,
 };
 use poise::{CreateReply, Modal};
 
@@ -11,7 +12,7 @@ use crate::{data::event::EventType, Context, Error};
 pub async fn event(
     ctx: Context<'_>,
     #[description = "The type of event"] event_type: EventType,
-    #[description = "Ping gardeners or not"] ping: Option<bool>,
+    #[description = "The banner for this event"] banner: Option<Attachment>,
 ) -> Result<(), Error> {
     let reply_text: String;
 
@@ -21,7 +22,6 @@ pub async fn event(
     let hours: u8;
     let channel_id: u64;
     let scheduled_type: ScheduledEventType;
-    let ping = ping.unwrap_or(true);
 
     // Execute Game Modal for Dota and CS Events
     // Execute Event Modal for Other Events
@@ -112,29 +112,33 @@ pub async fn event(
         }
     };
 
-    // Create Discord Scheduled Event
-    ctx.guild_id()
-        .ok_or("Failed to find guild")?
-        .create_scheduled_event(
-            &ctx,
-            CreateScheduledEvent::new(scheduled_type, name, start_time).channel_id(channel_id),
-        )
-        .await?;
+    // Create Discord Scheduled Event with banners if provided
+    if let Some(banner) = banner {
+        let attachment = CreateAttachment::url(ctx, &banner.url).await?;
+        ctx.guild_id()
+            .ok_or("Failed to find guild")?
+            .create_scheduled_event(
+                &ctx,
+                CreateScheduledEvent::new(scheduled_type, name, start_time)
+                    .channel_id(channel_id)
+                    .image(&attachment),
+            )
+            .await?;
+    } else {
+        ctx.guild_id()
+            .ok_or("Failed to find guild")?
+            .create_scheduled_event(
+                &ctx,
+                CreateScheduledEvent::new(scheduled_type, name, start_time).channel_id(channel_id),
+            )
+            .await?;
+    }
 
     // Ping Gardeners or not depending on ping flag
-    let msg = if ping {
-        let reply = CreateReply::new()
-            .content(reply_text)
-            .allowed_mentions(CreateAllowedMentions::new().all_roles(true).all_users(true));
-        ctx.send(reply).await?.into_message().await?
-    } else {
-        let reply = CreateReply::new().content(reply_text).allowed_mentions(
-            CreateAllowedMentions::new()
-                .all_roles(false)
-                .all_users(false),
-        );
-        ctx.send(reply).await?.into_message().await?
-    };
+    let reply = CreateReply::new()
+        .content(reply_text)
+        .allowed_mentions(CreateAllowedMentions::new().all_roles(true).all_users(true));
+    let msg = ctx.send(reply).await?.into_message().await?;
 
     // React to the message with the signup emoji
     msg.react(&ctx, ctx.data().config.signup_emoji.clone())
@@ -185,9 +189,9 @@ fn get_hours(series_length: &str) -> Result<u8, Error> {
 
 fn get_rivals_hours(series_length: &str) -> Result<u8, Error> {
     match series_length.to_lowercase().as_str() {
-        "bo3" => Ok(3),
-        "bo5" => Ok(4),
-        "bo7" => Ok(5),
+        "bo3" => Ok(2),
+        "bo5" => Ok(3),
+        "bo7" => Ok(4),
         _ => Err("Invalid series length".into()),
     }
 }
