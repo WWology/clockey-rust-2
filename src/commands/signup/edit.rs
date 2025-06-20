@@ -32,7 +32,8 @@ pub async fn edit(
             .ok_or("Failed to find time")?
             .get(1)
             .ok_or("Failed to find time")?;
-        reply_message.push_str(format!("{} to {new_time}\n", time_match.as_str()).as_str());
+        reply_message
+            .push_str(format!("<t:{}:F> to <t:{new_time}:F>\n", time_match.as_str()).as_str());
         let time_range = time_match.range();
         new_message.replace_range(time_range, new_time.as_str());
     }

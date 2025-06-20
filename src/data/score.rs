@@ -10,6 +10,23 @@ pub struct Score {
     pub score: i64,
 }
 
+/// Global
+pub async fn get_global_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
+    todo!();
+    // let id = i64::try_from(id)?;
+    // let row = sqlx::query_file_as!(Score, "src/data/score/sql/get_global_score_for_id.sql", id)
+    //     .fetch_one(db)
+    //     .await?;
+    // Ok(row)
+}
+
+pub async fn show_global_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
+    let scoreboard = sqlx::query_file_as!(Score, "src/data/score/sql/show_global_scoreboard.sql")
+        .fetch_all(db)
+        .await?;
+    Ok(scoreboard)
+}
+
 // Dota
 pub async fn get_dota_score_for_id(db: &Pool<Sqlite>, id: u64) -> Result<Score, Error> {
     let id = i64::try_from(id)?;
