@@ -29,6 +29,8 @@ pub struct Config {
     dota_oracle_role: RoleId,
     cs2_awpacle_role: RoleId,
     rivals_avengers_role: RoleId,
+    mlbb_legends_role: RoleId,
+    hok_kings_role: RoleId,
 }
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -231,6 +233,8 @@ fn init_config() -> Config {
     let dota_oracle_role = RoleId::new(729_106_634_437_296_148);
     let cs2_awpacle_role = RoleId::new(729_106_753_085_636_688);
     let rivals_avengers_role = RoleId::new(1_347_178_660_192_583_731);
+    let mlbb_legends_role = RoleId::new(1_378_962_478_263_832_636);
+    let hok_kings_role = RoleId::new(1_378_962_836_784_414_720);
     Config {
         signup_emoji,
         processed_emoji,
@@ -243,5 +247,7 @@ fn init_config() -> Config {
         dota_oracle_role,
         cs2_awpacle_role,
         rivals_avengers_role,
+        mlbb_legends_role,
+        hok_kings_role,
     }
 }
