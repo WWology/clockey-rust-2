@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM hok_scoreboard;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "8141ec04cb0fd901f025284a40247b7a69926fbd92935591619516825601f9de"
+}

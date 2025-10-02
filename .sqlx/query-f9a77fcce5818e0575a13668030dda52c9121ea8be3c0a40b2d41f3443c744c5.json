@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM cs_scoreboard;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "f9a77fcce5818e0575a13668030dda52c9121ea8be3c0a40b2d41f3443c744c5"
+}

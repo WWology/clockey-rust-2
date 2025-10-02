@@ -32,10 +32,17 @@ pub async fn edit(
             .ok_or("Failed to find time")?
             .get(1)
             .ok_or("Failed to find time")?;
+        let relative_time_match = Regex::new(r"<t:(\d+):R>")?
+            .captures(new_message.as_str())
+            .ok_or("Failed to find time")?
+            .get(1)
+            .ok_or("Failed to find time")?;
         reply_message
             .push_str(format!("<t:{}:F> to <t:{new_time}:F>\n", time_match.as_str()).as_str());
         let time_range = time_match.range();
+        let relative_time_range = relative_time_match.range();
         new_message.replace_range(time_range, new_time.as_str());
+        new_message.replace_range(relative_time_range, new_time.as_str());
     }
 
     if let Some(new_hours) = hours {

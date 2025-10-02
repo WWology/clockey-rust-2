@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM dota_scoreboard;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "a21c7395718351075f1b0f3beefb96d741bc85dc03795e1e5c17167942325a9c"
+}

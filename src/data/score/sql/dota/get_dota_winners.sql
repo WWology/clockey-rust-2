@@ -9,4 +9,4 @@ FROM (
         dota_scoreboard
 )
 WHERE
-    rank <= 3;
+    rank = 1;

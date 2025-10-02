@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM rivals_scoreboard;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "fe862bbf7df6b226a8e19816f430a4950dc1f6d8ac58325ed81cd9f85bc72ac1"
+}

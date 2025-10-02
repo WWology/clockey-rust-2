@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT\n    rank, id, score\nFROM (\n    SELECT\n        DENSE_RANK() OVER (ORDER BY score DESC) rank,\n        id,\n        score\n    FROM\n        mlbb_scoreboard\n)\nWHERE\n    id = $1;\n",
+  "describe": {
+    "columns": [
+      {
+        "name": "rank",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "id",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "score",
+        "ordinal": 2,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "245c084d5930a5f6e6989ee3d2ec254678a85438d3141b9ad158fe7002c06e81"
+}

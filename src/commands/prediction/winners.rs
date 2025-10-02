@@ -32,8 +32,14 @@ pub async fn dota(ctx: Context<'_>) -> Result<(), Error> {
 
     // Get winners and add Dota Oracle role for new winners
     let winners = score::get_dota_winners(&ctx.data().db).await?;
+    let mut reply_text = String::new();
 
-    for winner in winners {
+    for (i, winner) in winners.iter().enumerate() {
+        if i == 0 {
+            reply_text = format!("<@{}>", winner.id);
+        } else {
+            reply_text = format!("{}, <@{}>", reply_text, winner.id);
+        }
         ctx.http()
             .add_member_role(
                 guild_id,
@@ -43,6 +49,9 @@ pub async fn dota(ctx: Context<'_>) -> Result<(), Error> {
             )
             .await?;
     }
+
+    ctx.reply(format!("Dota oracle winners: {reply_text}"))
+        .await?;
 
     Ok(())
 }
@@ -71,8 +80,14 @@ pub async fn cs(ctx: Context<'_>) -> Result<(), Error> {
 
     // Get winners and add CS2 Awpacle role for new winners
     let winners = score::get_cs_winners(&ctx.data().db).await?;
+    let mut reply_text = String::new();
 
-    for winner in winners {
+    for (i, winner) in winners.iter().enumerate() {
+        if i == 0 {
+            reply_text = format!("<@{}>", winner.id);
+        } else {
+            reply_text = format!("{}, <@{}>", reply_text, winner.id);
+        }
         ctx.http()
             .add_member_role(
                 guild_id,
@@ -82,6 +97,10 @@ pub async fn cs(ctx: Context<'_>) -> Result<(), Error> {
             )
             .await?;
     }
+
+    ctx.reply(format!("CS oracle winners: {reply_text}"))
+        .await?;
+
     Ok(())
 }
 
@@ -119,8 +138,14 @@ pub async fn rivals(ctx: Context<'_>) -> Result<(), Error> {
 
     // Get winners and add Rivals Avenger role for new winners
     let winners = score::get_rivals_winners(&ctx.data().db).await?;
+    let mut reply_text = String::new();
 
-    for winner in winners {
+    for (i, winner) in winners.iter().enumerate() {
+        if i == 0 {
+            reply_text = format!("<@{}>", winner.id);
+        } else {
+            reply_text = format!("{}, <@{}>", reply_text, winner.id);
+        }
         ctx.http()
             .add_member_role(
                 guild_id,
@@ -130,6 +155,10 @@ pub async fn rivals(ctx: Context<'_>) -> Result<(), Error> {
             )
             .await?;
     }
+
+    ctx.reply(format!("Rivals oracle winners: {reply_text}"))
+        .await?;
+
     Ok(())
 }
 
@@ -162,8 +191,14 @@ pub async fn mlbb(ctx: Context<'_>) -> Result<(), Error> {
 
     // Get winners and add MLBB The Legends role for new winners
     let winners = score::get_mlbb_winners(&ctx.data().db).await?;
+    let mut reply_text = String::new();
 
-    for winner in winners {
+    for (i, winner) in winners.iter().enumerate() {
+        if i == 0 {
+            reply_text = format!("<@{}>", winner.id);
+        } else {
+            reply_text = format!("{}, <@{}>", reply_text, winner.id);
+        }
         ctx.http()
             .add_member_role(
                 guild_id,
@@ -173,6 +208,10 @@ pub async fn mlbb(ctx: Context<'_>) -> Result<(), Error> {
             )
             .await?;
     }
+
+    ctx.reply(format!("MLBB oracle winners: {reply_text}"))
+        .await?;
+
     Ok(())
 }
 
@@ -200,8 +239,14 @@ pub async fn hok(ctx: Context<'_>) -> Result<(), Error> {
 
     // Get winners and add HoK True Kings role for new winners
     let winners = score::get_hok_winners(&ctx.data().db).await?;
+    let mut reply_text = String::new();
 
-    for winner in winners {
+    for (i, winner) in winners.iter().enumerate() {
+        if i == 0 {
+            reply_text = format!("<@{}>", winner.id);
+        } else {
+            reply_text = format!("{}, <@{}>", reply_text, winner.id);
+        }
         ctx.http()
             .add_member_role(
                 guild_id,
@@ -211,5 +256,9 @@ pub async fn hok(ctx: Context<'_>) -> Result<(), Error> {
             )
             .await?;
     }
+
+    ctx.reply(format!("HoK oracle winners: {reply_text}"))
+        .await?;
+
     Ok(())
 }

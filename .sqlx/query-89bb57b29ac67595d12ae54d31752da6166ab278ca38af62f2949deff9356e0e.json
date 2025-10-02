@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO\n    hok_scoreboard (id, score)\nVALUES\n    ($1, 1) ON CONFLICT (id) DO\nUPDATE\nSET\n    score = score + 1;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "89bb57b29ac67595d12ae54d31752da6166ab278ca38af62f2949deff9356e0e"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM mlbb_scoreboard;\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "8b7fc0b1da4e795afded3383ce0858792baffb4e2fae929ffbf2fad6c113052a"
+}

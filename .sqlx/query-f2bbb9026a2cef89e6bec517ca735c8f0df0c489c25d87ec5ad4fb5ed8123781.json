@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT\n    DENSE_RANK() OVER (\n        ORDER BY\n            score DESC\n    ) rank,\n    id,\n    score\nFROM\n    hok_scoreboard;;\n",
+  "describe": {
+    "columns": [
+      {
+        "name": "rank",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "id",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "score",
+        "ordinal": 2,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f2bbb9026a2cef89e6bec517ca735c8f0df0c489c25d87ec5ad4fb5ed8123781"
+}

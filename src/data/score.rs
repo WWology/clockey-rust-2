@@ -47,6 +47,13 @@ pub async fn get_dota_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
     Ok(rows)
 }
 
+pub async fn reset_dota_scoreboard(db: &Pool<Sqlite>) -> Result<(), Error> {
+    sqlx::query_file!("src/data/score/sql/dota/reset_dota_scoreboard.sql")
+        .execute(db)
+        .await?;
+    Ok(())
+}
+
 pub async fn show_dota_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
     let scoreboard =
         sqlx::query_file_as!(Score, "src/data/score/sql/dota/show_dota_scoreboard.sql")
@@ -78,6 +85,13 @@ pub async fn get_cs_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
         .fetch_all(db)
         .await?;
     Ok(rows)
+}
+
+pub async fn reset_cs_scoreboard(db: &Pool<Sqlite>) -> Result<(), Error> {
+    sqlx::query_file!("src/data/score/sql/cs/reset_cs_scoreboard.sql")
+        .execute(db)
+        .await?;
+    Ok(())
 }
 
 pub async fn show_cs_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
@@ -113,6 +127,13 @@ pub async fn get_rivals_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> 
         .fetch_all(db)
         .await?;
     Ok(rows)
+}
+
+pub async fn reset_rivals_scoreboard(db: &Pool<Sqlite>) -> Result<(), Error> {
+    sqlx::query_file!("src/data/score/sql/rivals/reset_rivals_scoreboard.sql")
+        .execute(db)
+        .await?;
+    Ok(())
 }
 
 pub async fn show_rivals_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
@@ -153,6 +174,13 @@ pub async fn get_mlbb_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
     Ok(rows)
 }
 
+pub async fn reset_mlbb_scoreboard(db: &Pool<Sqlite>) -> Result<(), Error> {
+    sqlx::query_file!("src/data/score/sql/mlbb/reset_mlbb_scoreboard.sql")
+        .execute(db)
+        .await?;
+    Ok(())
+}
+
 pub async fn show_mlbb_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
     let scoreboard =
         sqlx::query_file_as!(Score, "src/data/score/sql/mlbb/show_mlbb_scoreboard.sql")
@@ -183,6 +211,13 @@ pub async fn get_hok_winners(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {
         .fetch_all(db)
         .await?;
     Ok(rows)
+}
+
+pub async fn reset_hok_scoreboard(db: &Pool<Sqlite>) -> Result<(), Error> {
+    sqlx::query_file!("src/data/score/sql/hok/reset_hok_scoreboard.sql")
+        .execute(db)
+        .await?;
+    Ok(())
 }
 
 pub async fn show_hok_scoreboard(db: &Pool<Sqlite>) -> Result<Vec<Score>, Error> {

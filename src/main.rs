@@ -124,6 +124,7 @@ async fn main() {
                 prediction::rivalsadd(),
                 prediction::rivalsbo(),
                 prediction::show(),
+                prediction::reset(),
                 prediction::winners(),
             ],
             on_error: |error| Box::pin(on_error(error)),

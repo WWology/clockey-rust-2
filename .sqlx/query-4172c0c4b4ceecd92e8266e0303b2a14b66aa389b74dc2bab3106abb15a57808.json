@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT DENSE_RANK() OVER (\n    ORDER BY\n        sum(score) DESC\n    ) rank,\n    id,\n    sum(score) score\nfrom\n(\n    SELECT * FROM dota_scoreboard\n    UNION ALL\n    SELECT * FROM cs_scoreboard\n    UNION ALL\n    SELECT * FROM rivals_scoreboard\n    UNION ALL\n    SELECT * FROM mlbb_scoreboard\n    UNION ALL\n    SELECT * FROM hok_scoreboard\n) as total_score\nGROUP BY id;\n",
+  "describe": {
+    "columns": [
+      {
+        "name": "rank",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "id",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "score",
+        "ordinal": 2,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4172c0c4b4ceecd92e8266e0303b2a14b66aa389b74dc2bab3106abb15a57808"
+}
